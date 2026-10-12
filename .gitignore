@@ -1,0 +1,10 @@
+# Raw StatsBomb data can't be redistributed (StatsBomb user agreement), so it stays local
+data/raw/
+data/external/
+data/processed/*.csv.gz
+data/processed/unmatched_players.csv
+
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
