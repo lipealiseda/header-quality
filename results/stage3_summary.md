@@ -18,4 +18,4 @@ Match grouped 5 fold cross validation on all men's StatsBomb open data matches. 
 
 Physical inputs (height, weight, EA ratings) are not in these runs yet. The scripts pick them up automatically once data/processed/player_physical.csv.gz exists.
 
-The match labels Pass or Clearance on defensive headers are left out of the clearance models because StatsBomb tends to log a header as a pass when it reaches a teammate, which leaks the outcome.
+The Pass or Clearance labels on defensive headers are left out of the clearance models because StatsBomb tends to log a header as a pass when it reaches a teammate, which leaks the outcome.
