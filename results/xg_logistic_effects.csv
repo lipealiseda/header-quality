@@ -1,0 +1,47 @@
+feature,coef
+cat__dlv_technique_Through Ball,0.5314747889185628
+num__dist,-0.5025942666912699
+num__aerial_won,-0.441414417775638
+num__angle,0.2751832425041455
+cat__dlv_technique_Inswinging,-0.2735392751895114
+cat__dlv_technique_Outswinging,-0.24086694624137117
+num__under_pressure,0.21828452629373138
+num__dlv_length,-0.1945109198873736
+cat__dlv_type_free_kick,0.1821974956475605
+num__n_def_in_cone,-0.1523872454115721
+num__dlv_pace,0.1427150895849961
+cat__dlv_type_throw_in,-0.13684758929410065
+num__n_opp_in_box,-0.13660363209889212
+num__gk_in_cone,-0.10818287384985747
+cat__dlv_technique_none,-0.08549416430196484
+num__gk_dist_shooter,-0.0851739857485493
+num__dlv_start_x,-0.0791087498090497
+num__score_diff,0.07826734241035034
+num__diving,0.07684739044179868
+num__dlv_wide,0.07656961169431123
+num__n_opp_within_2m,-0.06883647758745717
+cat__dlv_type_cross_open_play,-0.06643703929307775
+num__gk_dist_goal,0.06191191936397064
+num__missingindicator_dlv_pace,-0.06118641828159053
+num__nearest_opp_dist,0.06084094272343847
+cat__dlv_height_Ground Pass,-0.05117909457229341
+cat__dlv_type_headed_flick,-0.05089860631007895
+cat__dlv_type_short_pass,-0.04957557426540306
+num__turn_angle,0.04927425259766293
+cat__dlv_type_corner,0.04654971821045715
+num__in_six,0.03801514420218617
+cat__dlv_type_long_ball,0.0343794693060256
+cat__dlv_height_High Pass,0.03156889307216702
+cat__dlv_technique_Straight,0.02821289805006439
+num__n_att_in_cone,-0.02512398149349528
+cat__dlv_height_Low Pass,-0.021021924498512826
+num__dlv_flight_time,0.011612389292775013
+num__missingindicator_gk_dist_goal,0.011406942076262572
+num__missingindicator_gk_dist_shooter,0.011406942076262572
+num__missingindicator_dlv_start_x,0.008705150147237098
+num__missingindicator_turn_angle,0.008705150147237098
+num__missingindicator_dlv_flight_time,0.008705150147237098
+num__missingindicator_dlv_wide,0.008705150147237098
+num__missingindicator_dlv_length,0.00870515014722897
+cat__dlv_type_none,0.00041942723441100444
+cat__dlv_height_none,0.00041942723441100444

@@ -1,0 +1,48 @@
+feature,coef
+cat__play_pattern_From Counter,-2.1502195498868097
+num__dlv_start_x,0.7013238369637669
+cat__def_pos_CB,0.5301929492878913
+cat__dlv_type_corner,0.5133055768311865
+num__x,-0.4940804248487407
+cat__play_pattern_From Goal Kick,0.4603403410178022
+cat__dlv_type_goal_kick,-0.4496614019573038
+cat__dlv_type_free_kick,-0.38582035494879996
+cat__play_pattern_From Throw In,0.36261734941476953
+cat__play_pattern_From Free Kick,0.33937378025372206
+cat__play_pattern_From Keeper,0.3300444250932379
+cat__att_pos_CB,-0.3138661621919414
+cat__play_pattern_From Kick Off,0.29727926080816214
+cat__def_pos_W,-0.29226409738363973
+cat__dlv_type_headed_flick,0.24811775026386929
+cat__def_pos_WM,-0.23997704276314108
+cat__def_pos_AM,-0.23561446167059497
+cat__dlv_type_throw_in,-0.21171470868497297
+cat__att_pos_WM,0.20384001524211398
+num__dlv_length,-0.20309348161423424
+cat__att_pos_AM,0.18588854311746877
+cat__att_pos_W,0.18042568434302872
+cat__dlv_height_Low Pass,-0.16874687431414784
+cat__play_pattern_Other,0.16459238263394174
+cat__dlv_type_short_pass,0.15155302367365306
+cat__att_pos_FB,-0.13073393196739783
+cat__att_pos_ST,-0.12515046340964972
+cat__att_pos_DM,-0.12009115950275462
+cat__def_pos_ST,0.11747105470258168
+cat__def_pos_DM,0.1049045118528253
+cat__dlv_height_Ground Pass,0.10395232638176082
+cat__play_pattern_From Corner,0.0867504722638086
+cat__def_pos_CM,-0.07513077639813569
+cat__dlv_type_long_ball,0.049338538630212245
+cat__play_pattern_Regular Play,0.04731632411196763
+cat__def_pos_FB,0.041486999892963804
+cat__att_pos_infrequent_sklearn,0.04024446699003221
+num__missingindicator_dlv_pace,0.03554539852801188
+num__dlv_pace,-0.02357823629459563
+num__missingindicator_f360_opp_within_3m,0.023349722557935142
+cat__dlv_type_cross_open_play,0.022976361902747523
+cat__att_pos_CM,0.017537793089694248
+num__f360_opp_within_3m,-0.016339167292067282
+cat__def_pos_infrequent_sklearn,-0.012974351810160427
+num__wide,0.008793930171932784
+num__in_own_box,-0.008398054414838105
+cat__dlv_height_High Pass,0.0028893336430307667

@@ -1,0 +1,47 @@
+feature,coef
+cat__dlv_height_Ground Pass,-0.458745757846132
+cat__dlv_type_throw_in,0.4576818538457502
+cat__dlv_type_long_ball,-0.4276154339192155
+cat__dlv_type_cross_open_play,-0.3027725299881893
+num__aerial_won,-0.2914507433384399
+cat__dlv_technique_Straight,-0.27838475053267886
+num__dlv_pace,-0.2732072955935373
+cat__dlv_type_headed_flick,0.2650534451239548
+num__angle,0.22679517054709264
+cat__dlv_type_short_pass,-0.195158154541506
+num__n_def_in_cone,-0.15985902535793212
+cat__dlv_technique_Through Ball,0.13633125609687727
+cat__dlv_technique_Outswinging,-0.13075455466402125
+num__under_pressure,0.12964562941669816
+num__missingindicator_dlv_pace,-0.1257133665015926
+num__dlv_length,0.12200216114209814
+cat__dlv_type_corner,-0.11439736977583236
+cat__dlv_type_free_kick,-0.11065517257141534
+cat__dlv_technique_none,-0.09731672750211812
+num__dlv_wide,-0.09275151520576155
+num__n_opp_in_box,-0.09008322537540633
+num__nearest_opp_dist,0.06606038123742117
+num__diving,0.0611994081587937
+num__in_six,0.05980555209030828
+cat__dlv_technique_Inswinging,-0.057802734717840615
+num__dlv_start_x,-0.05753567805848836
+num__gk_dist_goal,-0.05080702682097414
+num__gk_dist_shooter,0.049053134361302625
+num__n_att_in_cone,-0.04269933627202996
+num__score_diff,0.042647591795427625
+num__dist,0.04216711017335561
+num__dlv_flight_time,-0.03685915612235005
+num__missingindicator_dlv_length,0.030431583938882952
+num__missingindicator_dlv_flight_time,0.030431583938881426
+num__missingindicator_dlv_wide,0.030431583938881426
+num__missingindicator_turn_angle,0.030431583938881426
+num__missingindicator_dlv_start_x,0.030431583938881426
+num__turn_angle,-0.027044769439993645
+num__n_opp_within_2m,-0.025365993566999763
+num__missingindicator_gk_dist_goal,0.02381560876790684
+num__missingindicator_gk_dist_shooter,0.02381560876790684
+cat__dlv_height_Low Pass,0.020255861760886576
+num__gk_in_cone,0.019953120689748003
+cat__dlv_height_High Pass,0.01062653425879385
+cat__dlv_type_none,-6.414949333151053e-05
+cat__dlv_height_none,-6.414949333151053e-05
