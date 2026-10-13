@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from modeling import (PROC, RES, attach_physical, boosting_importance, calibration_table,  # noqa: E402
+from modeling import (PROC, RES, TAG, attach_physical, boosting_importance, calibration_table,  # noqa: E402
                       logistic_effects, physical_columns, run)
 
 NUM = ["dist", "angle", "dlv_length", "dlv_pace", "dlv_flight_time", "turn_angle",
@@ -50,14 +50,17 @@ def main():
         all_metrics.append(m)
         preds.append(oof)
         print(m.round(4).to_string(index=False))
-        logistic_effects(full["logistic"], num, CAT).to_csv(RES / f"{name}_logistic_effects.csv", index=False)
-        boosting_importance(s, num, CAT, target).to_csv(RES / f"{name}_gbm_importance.csv", index=False)
+        logistic_effects(full["logistic"], num, CAT).to_csv(RES / f"{name}_logistic_effects{TAG}.csv", index=False)
+        boosting_importance(s, num, CAT, target).to_csv(RES / f"{name}_gbm_importance{TAG}.csv", index=False)
         best = oof[f"{name}_gbm"] if m.set_index("model").loc["boosting", "log_loss"] <= \
             m.set_index("model").loc["logistic", "log_loss"] else oof[f"{name}_lr"]
-        calibration_table(s[target].values, best.values).to_csv(RES / f"{name}_calibration.csv", index=False)
+        calibration_table(s[target].values, best.values).to_csv(RES / f"{name}_calibration{TAG}.csv", index=False)
 
     out = pd.concat([s[["event_id", "match_id", "comp_season", "player_id", "player", "team",
                         "goal", "on_target", "sb_xg", "x", "y", "dlv_type"]]] + preds, axis=1)
+    if TAG:  # comparison run without height, keep only the metrics
+        pd.concat(all_metrics).to_csv(RES / f"attack_metrics{TAG}.csv", index=False)
+        return
     out.to_csv(PROC / "attack_predictions.csv.gz", index=False)
     pd.concat(all_metrics).to_csv(RES / "attack_metrics.csv", index=False)
 

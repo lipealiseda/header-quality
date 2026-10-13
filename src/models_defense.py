@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from modeling import (PROC, RES, attach_physical, boosting_importance, calibration_table,  # noqa: E402
+from modeling import (PROC, RES, TAG, attach_physical, boosting_importance, calibration_table,  # noqa: E402
                       logistic_effects, physical_columns, run)
 
 POS_GROUP = {
@@ -62,19 +62,20 @@ def duel_model():
     d = prepare_duels()
     num = ["x", "wide", "in_own_box", "dlv_length", "dlv_pace", "dlv_start_x", "f360_opp_within_3m"]
     phys = physical_columns(d, "def_") + physical_columns(d, "att_") + (
-        ["height_diff"] if "height_diff" in d and d["height_diff"].notna().mean() > 0.3 else [])
+        ["height_diff"] if not TAG and "height_diff" in d and d["height_diff"].notna().mean() > 0.3 else [])
     num += phys
     cat = DLV_CAT + ["play_pattern", "def_pos", "att_pos"]
     print(f"{len(d)} duels, physical inputs used {phys or 'none yet'}")
     m, oof, full = run(d, num, cat, "def_won", "duel")
     print(m.round(4).to_string(index=False))
-    logistic_effects(full["logistic"], num, cat).to_csv(RES / "duel_logistic_effects.csv", index=False)
-    boosting_importance(d, num, cat, "def_won").to_csv(RES / "duel_gbm_importance.csv", index=False)
+    logistic_effects(full["logistic"], num, cat).to_csv(RES / f"duel_logistic_effects{TAG}.csv", index=False)
+    boosting_importance(d, num, cat, "def_won").to_csv(RES / f"duel_gbm_importance{TAG}.csv", index=False)
     best = pick(m, oof, "duel")
-    calibration_table(d["def_won"].values, oof[best].values).to_csv(RES / "duel_calibration.csv", index=False)
+    calibration_table(d["def_won"].values, oof[best].values).to_csv(RES / f"duel_calibration{TAG}.csv", index=False)
     keep = ["event_id", "match_id", "comp_season", "def_player_id", "att_player_id", "winner",
             "loser", "def_won", "def_pos", "att_pos", "x", "y", "dlv_type"]
-    pd.concat([d[keep], oof], axis=1).assign(best=best).to_csv(PROC / "duel_predictions.csv.gz", index=False)
+    if not TAG:
+        pd.concat([d[keep], oof], axis=1).assign(best=best).to_csv(PROC / "duel_predictions.csv.gz", index=False)
     return m
 
 
@@ -107,15 +108,16 @@ def clearance_models():
         sub[target] = sub[target].astype(int)
         m, oof, full = run(sub, num, cat, target, name)
         print(m.round(4).to_string(index=False))
-        logistic_effects(full["logistic"], num, cat).to_csv(RES / f"{name}_logistic_effects.csv", index=False)
-        boosting_importance(sub, num, cat, target).to_csv(RES / f"{name}_gbm_importance.csv", index=False)
+        logistic_effects(full["logistic"], num, cat).to_csv(RES / f"{name}_logistic_effects{TAG}.csv", index=False)
+        boosting_importance(sub, num, cat, target).to_csv(RES / f"{name}_gbm_importance{TAG}.csv", index=False)
         best = pick(m, oof, name)
-        calibration_table(sub[target].values, oof[best].values).to_csv(RES / f"{name}_calibration.csv", index=False)
+        calibration_table(sub[target].values, oof[best].values).to_csv(RES / f"{name}_calibration{TAG}.csv", index=False)
         metrics.append(m)
         preds.append(oof.reindex(f.index))
     keep = ["event_id", "match_id", "comp_season", "player_id", "player", "team", "pos_group", "action",
             "x", "y", "aerial_won", "opp_shot_10s", "opp_xg_10s", "next_team_won", "next_x", "next_y", "dlv_type"]
-    pd.concat([f[keep]] + preds, axis=1).to_csv(PROC / "clearance_predictions.csv.gz", index=False)
+    if not TAG:
+        pd.concat([f[keep]] + preds, axis=1).to_csv(PROC / "clearance_predictions.csv.gz", index=False)
     return pd.concat(metrics)
 
 
@@ -125,7 +127,7 @@ def pick(m, oof, name):
 
 
 def main():
-    pd.concat([duel_model(), clearance_models()]).to_csv(RES / "defense_metrics.csv", index=False)
+    pd.concat([duel_model(), clearance_models()]).to_csv(RES / f"defense_metrics{TAG}.csv", index=False)
 
 
 if __name__ == "__main__":

@@ -8,3 +8,8 @@ __pycache__/
 *.pyc
 .ipynb_checkpoints/
 .DS_Store
+
+# comparison run without height: keep only its metrics
+results/*_noheight.csv
+!results/attack_metrics_noheight.csv
+!results/defense_metrics_noheight.csv

@@ -87,6 +87,9 @@ python src/match_players.py
 
 python src/models_attack.py           # Stage 3
 python src/models_defense.py
+HQ_NO_PHYSICAL=1 python src/models_attack.py    # same models without height, for comparison
+HQ_NO_PHYSICAL=1 python src/models_defense.py
+python src/stage3_report.py
 python src/rankings.py                # Stage 4
 python src/stage4_report.py
 python src/charts.py                  # Stage 6

@@ -6,6 +6,7 @@ letting the same match sit in train and test would flatter the scores.
 
 Each run returns out of fold predictions, so the player rankings in Stage 4 compare
 players with predictions the model made without seeing those exact events."""
+import os
 from pathlib import Path
 
 import numpy as np
@@ -24,6 +25,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PROC = ROOT / "data" / "processed"
 RES = ROOT / "results"
 RES.mkdir(exist_ok=True)
+TAG = "_noheight" if os.environ.get("HQ_NO_PHYSICAL") else ""
 SEED = 7
 
 
@@ -105,6 +107,8 @@ def boosting_importance(df, num, cat, target, groups="match_id"):
 def physical_columns(df, prefix=""):
     """Physical columns that exist and are filled for at least 30% of rows. Before
     heights are joined this returns nothing and the models run without them."""
+    if os.environ.get("HQ_NO_PHYSICAL"):  # used to measure what height adds
+        return []
     cols = [c for c in df.columns if c.startswith(prefix) and any(
         k in c for k in ("height_cm", "weight_kg", "ea_strength", "ea_jumping", "ea_heading", "ea_sprint"))]
     return [c for c in cols if df[c].notna().mean() >= 0.3]
