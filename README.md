@@ -29,6 +29,7 @@ How good are players with their heads, in attack and in defense, once you accoun
 |---|---|---|
 | [StatsBomb open data](https://github.com/statsbomb/open-data) | Events, shot freeze frames, 360 frames, lineups for 2,651 men's matches | StatsBomb public data user agreement. Free for research, no redistribution of the raw data, analysis must credit StatsBomb with their logo |
 | [Transfermarkt dataset by dcaribou](https://github.com/dcaribou/transfermarkt-datasets) | Player height, birth date, nationality, club history | CC0 |
+| [Metrica Sports sample data](https://github.com/metrica-sports/sample-data) | Two anonymised games of tracking data (Stage 5 only) | Free to use, public use should acknowledge Metrica Sports |
 
 The raw data is **not** in this repository, because the StatsBomb agreement does not allow redistributing it. The scripts download it.
 
@@ -58,6 +59,10 @@ Two choices worth knowing about.
 
 1. StatsBomb's `under_pressure` flag was dropped from the attack models. It duplicates the distance to the nearest defender, and with both in the model the flag took a misleading positive sign even though pressured headers score about half as often.
 2. Whether a defensive header was logged as a Pass or a Clearance was kept out of the clearance models, because StatsBomb tends to log a header as a pass when it reaches a teammate, which would leak the outcome.
+
+## Stage 5, speed from tracking data
+
+Free event data has no speed, so a small side test uses Metrica Sports' two anonymised sample games (25 frames per second). For 38 aerial duels where both players are tracked, speed, peak speed, run up distance and movement toward the ball in the second before contact do not pick the winner better than a coin flip (leave one out AUC 0.53, range 0.34 to 0.73). The sample is far too small to rule out a modest effect. Details, including a leak caught on the first attempt, are in [results/stage5_tracking.md](results/stage5_tracking.md).
 
 ## Rankings
 
@@ -112,4 +117,4 @@ Data provided by StatsBomb.
 
 <img src="assets/statsbomb_logo.png" alt="StatsBomb" width="220">
 
-Player heights from the Transfermarkt dataset maintained by David Cariboo (CC0).
+Player heights from the Transfermarkt dataset maintained by David Cariboo (CC0). Tracking data for Stage 5 from Metrica Sports sample data.
