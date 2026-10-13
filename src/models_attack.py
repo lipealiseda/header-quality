@@ -17,7 +17,11 @@ from modeling import (PROC, RES, attach_physical, boosting_importance, calibrati
 NUM = ["dist", "angle", "dlv_length", "dlv_pace", "dlv_flight_time", "turn_angle",
        "dlv_start_x", "dlv_wide", "n_def_in_cone", "n_att_in_cone", "nearest_opp_dist",
        "n_opp_within_2m", "n_opp_in_box", "gk_dist_goal", "gk_dist_shooter", "score_diff"]
-BOOL = ["in_six", "under_pressure", "aerial_won", "gk_in_cone", "diving"]
+# StatsBomb's under_pressure flag is left out. It mostly duplicates nearest_opp_dist
+# (pressured headers have a defender 0.9 yards away on average vs 2.1 yards), and with both in
+# the model the flag picks up a misleading positive sign even though pressured headers
+# score about half as often at every distance.
+BOOL = ["in_six", "aerial_won", "gk_in_cone", "diving"]
 CAT = ["dlv_type", "dlv_height", "dlv_technique"]
 
 

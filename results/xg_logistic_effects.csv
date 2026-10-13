@@ -1,49 +1,48 @@
 feature,coef
-num__dist,-0.49386906022731303
-cat__dlv_technique_Through Ball,0.4915453262911757
-num__aerial_won,-0.4618479996810613
-cat__dlv_technique_Inswinging,-0.3222880165260378
-num__angle,0.2778187791696206
-cat__dlv_technique_Outswinging,-0.273480187942992
-num__under_pressure,0.23705986773314763
-num__dlv_length,-0.1781274336998449
-num__n_def_in_cone,-0.15133725707208995
-cat__dlv_type_throw_in,-0.14712466412969097
-cat__dlv_technique_none,-0.14388323332350492
-cat__dlv_type_free_kick,0.1435235889574555
-num__n_opp_in_box,-0.14012444582485714
-num__dlv_pace,0.13631105815682718
-num__gk_in_cone,-0.1100734988506786
-cat__dlv_height_Low Pass,-0.10245067402324019
-cat__dlv_type_cross_open_play,-0.09420439467093679
-cat__dlv_height_Ground Pass,-0.0928948856390388
-num__gk_dist_shooter,-0.0883199706122457
-num__score_diff,0.07775548251182407
-num__diving,0.07718280194636791
-cat__dlv_type_headed_flick,-0.0737137562075381
-num__dlv_wide,0.07300272924576635
-num__n_opp_within_2m,-0.07126376072841659
-num__dlv_start_x,-0.06907904635834815
-num__nearest_opp_dist,0.0625345554398885
-cat__dlv_type_short_pass,-0.06171192091776082
-num__gk_dist_goal,0.05977138402195226
-num__missingindicator_dlv_pace,-0.05538068302202646
-cat__dlv_height_High Pass,-0.04659794060486657
-num__turn_angle,0.044981660318685675
-num__in_six,0.0396166230814138
-num__height_cm,0.03346780550460249
-num__missingindicator_height_cm,-0.031024859800925387
-num__n_att_in_cone,-0.027987061632007346
-cat__dlv_type_corner,-0.018601202826208616
-num__missingindicator_gk_dist_shooter,0.011766039260049507
-num__missingindicator_gk_dist_goal,0.011766039260049507
-cat__dlv_type_long_ball,0.009888849527533449
-num__missingindicator_dlv_flight_time,0.006013645222267918
-num__missingindicator_dlv_length,0.006013645222267918
-num__missingindicator_turn_angle,0.006013645222267918
-num__missingindicator_dlv_start_x,0.006013645222267918
-num__missingindicator_dlv_wide,0.006013645222267918
-cat__dlv_technique_Straight,0.005307197782186015
-num__dlv_flight_time,0.0025551842256329466
-cat__dlv_type_none,-0.0008554134520231722
-cat__dlv_height_none,-0.0008554134520231722
+num__dist,-0.5031161709456111
+cat__dlv_technique_Through Ball,0.4636987122560183
+cat__dlv_technique_Inswinging,-0.42371147649257546
+cat__dlv_technique_Outswinging,-0.3897258528318407
+num__angle,0.27690560039548506
+cat__dlv_height_Low Pass,-0.23930094398861795
+num__aerial_won,-0.23080449069994471
+cat__dlv_height_High Pass,-0.22373788190476035
+cat__dlv_height_Ground Pass,-0.21769217522214687
+cat__dlv_type_throw_in,-0.21113203431017433
+cat__dlv_technique_none,-0.2011681315543872
+num__dlv_length,-0.19990426021386049
+cat__dlv_type_cross_open_play,-0.16968784954820332
+num__n_def_in_cone,-0.1541222131970687
+cat__dlv_type_short_pass,-0.14795521740575057
+num__dlv_pace,0.147871296656335
+num__n_opp_in_box,-0.14423286574134472
+cat__dlv_technique_Straight,-0.13328028725862542
+cat__dlv_type_headed_flick,-0.1304238278633714
+num__gk_in_cone,-0.10840742799581571
+num__dlv_wide,0.08169132468138046
+num__gk_dist_shooter,-0.08034800335188323
+num__score_diff,0.0784150360483186
+num__dlv_start_x,-0.07754336574036741
+num__diving,0.07712640673374704
+cat__dlv_type_free_kick,0.07446799961208218
+num__n_opp_within_2m,-0.0724579171548945
+cat__dlv_type_long_ball,-0.06523831332635778
+num__gk_dist_goal,0.06291999913716174
+num__nearest_opp_dist,0.05555380216958748
+num__turn_angle,0.05331602447111336
+num__missingindicator_dlv_pace,-0.05278136671166631
+num__in_six,0.03873665482596159
+num__height_cm,0.03290825268129639
+num__missingindicator_height_cm,-0.031108858305972858
+cat__dlv_type_corner,-0.03076175827376692
+num__n_att_in_cone,-0.028253759449649897
+num__dlv_flight_time,0.013350275184343636
+num__missingindicator_gk_dist_goal,0.012073049102893748
+num__missingindicator_gk_dist_shooter,0.012073049102893748
+cat__dlv_type_none,-0.003456034765874315
+cat__dlv_height_none,-0.003456034765874315
+num__missingindicator_dlv_flight_time,0.002580784103719209
+num__missingindicator_dlv_length,0.002580784103719209
+num__missingindicator_turn_angle,0.002580784103719209
+num__missingindicator_dlv_start_x,0.002580784103719209
+num__missingindicator_dlv_wide,0.002580784103719209
