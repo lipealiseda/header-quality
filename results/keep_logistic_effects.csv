@@ -1,49 +1,51 @@
 feature,coef
-cat__play_pattern_From Counter,1.0492856925605274
-num__under_pressure,-0.7070604283765859
-cat__pos_group_GK,0.6881440028958384
-cat__play_pattern_From Corner,-0.4771051023505073
-num__missingindicator_dlv_pace,-0.4476821588378973
-num__dist_own_goal,-0.4252489187490498
-cat__play_pattern_From Kick Off,-0.3347375831100454
-cat__pos_group_WM,-0.31467850377070933
-cat__pos_group_W,-0.2915982856465435
-cat__pos_group_ST,-0.22414168023892247
-cat__play_pattern_From Free Kick,-0.2127176017902118
-num__x,0.2055190064570307
-num__aerial_won,0.1814371525442937
-cat__dlv_type_cross_open_play,-0.18092005552819868
-num__missingindicator_dlv_start_x,0.1649731746920243
-num__missingindicator_dlv_length,0.1649731746920243
-cat__pos_group_AM,-0.14126371944864993
-cat__play_pattern_From Throw In,-0.13887179908883876
-cat__pos_group_CB,0.13105133067372587
-cat__dlv_type_throw_in,0.10567729955081362
-cat__play_pattern_Regular Play,0.1048560917245967
-num__wide,-0.10034621452070952
-cat__dlv_type_long_ball,-0.061624482761350484
-num__dlv_start_x,0.056956917091290735
-cat__dlv_height_Ground Pass,-0.055545846963367104
-cat__dlv_type_short_pass,-0.05328700142882419
-cat__dlv_height_Low Pass,-0.045954611137475926
-cat__pos_group_DM,0.04574028802978625
-cat__dlv_type_none,0.04497449308696211
-cat__dlv_height_none,0.04497449308696211
-cat__play_pattern_Other,-0.04460311246957896
-num__in_own_box,0.043437933436624034
-num__f360_opp_within_10m,-0.039893309455204536
-cat__dlv_type_corner,0.03731298087619824
-num__f360_nearest_opp,-0.03701392440895218
-num__score_diff,-0.03082428378125019
-cat__pos_group_FB,0.03073457453172619
-cat__dlv_type_goal_kick,0.029197061195007323
-cat__dlv_height_High Pass,-0.021949061057137724
-cat__dlv_type_free_kick,0.01933886266364998
-cat__dlv_type_headed_flick,-0.01914418372527038
-cat__play_pattern_From Goal Kick,-0.01792134237383249
-num__dlv_pace,-0.01452201538675707
-num__dlv_length,-0.008809844803281638
-cat__play_pattern_From Keeper,-0.006660269173135931
-num__missingindicator_f360_opp_within_10m,0.005073567221605039
-num__missingindicator_f360_nearest_opp,0.005073567221605039
-cat__pos_group_CM,-0.002463033097262642
+cat__play_pattern_From Counter,1.1223422847144373
+num__under_pressure,-0.707943127211724
+cat__play_pattern_From Corner,-0.49987960873798976
+cat__play_pattern_From Kick Off,-0.3558253418274429
+num__dist_own_goal,-0.3489474456445509
+cat__pos_group_WM,-0.2682740196075828
+cat__play_pattern_From Free Kick,-0.23578046644772602
+cat__pos_group_W,-0.22786209251257333
+cat__pos_group_CB,0.20616237259362502
+cat__pos_group_GK,0.19391643056990931
+num__aerial_won,0.18332123128628666
+cat__dlv_type_cross_open_play,-0.17573640886184216
+cat__play_pattern_From Throw In,-0.1642672867144364
+cat__pos_group_ST,-0.15986390628832145
+num__x,0.14120865136765795
+num__missingindicator_dlv_pace,-0.12330712746083095
+num__wide,-0.12040721395107783
+cat__pos_group_DM,0.11569079502468597
+cat__dlv_type_throw_in,0.10155579602757851
+cat__pos_group_AM,-0.0946441574215473
+cat__pos_group_FB,0.08482441464344163
+cat__play_pattern_Regular Play,0.08444935488841643
+cat__pos_group_CM,0.06166784460181099
+num__dlv_start_x,0.059711715159430835
+cat__dlv_type_corner,0.0579745562134949
+cat__dlv_type_long_ball,-0.049811246007752996
+cat__dlv_type_short_pass,-0.048796122988217006
+num__in_own_box,0.04619979156353664
+cat__dlv_type_goal_kick,0.046163018897104995
+num__missingindicator_dlv_length,0.04169253426647431
+num__missingindicator_dlv_start_x,0.04169253426647431
+num__f360_opp_within_10m,-0.0401091054486665
+cat__dlv_height_Ground Pass,-0.03863127707975562
+num__f360_nearest_opp,-0.03724183962284937
+cat__play_pattern_From Keeper,-0.03517916972277649
+cat__play_pattern_From Goal Kick,-0.03268364119689344
+num__score_diff,-0.03066847260106494
+cat__play_pattern_Other,0.02844155664786953
+cat__dlv_type_free_kick,0.027145829556872322
+cat__dlv_type_headed_flick,-0.02555310486044553
+cat__dlv_height_Low Pass,-0.022299283854843664
+cat__dlv_type_none,-0.021324636373337376
+cat__dlv_height_none,-0.021324636373337376
+num__height_cm,-0.01918317339095661
+num__missingindicator_height_cm,0.017211984946851194
+num__dlv_pace,-0.01395623826539734
+num__dlv_length,-0.011865167103447238
+cat__dlv_height_High Pass,-0.006127121088609239
+num__missingindicator_f360_nearest_opp,0.003731127895212384
+num__missingindicator_f360_opp_within_10m,0.003731127895212384

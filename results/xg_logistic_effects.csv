@@ -1,47 +1,49 @@
 feature,coef
-cat__dlv_technique_Through Ball,0.5314747889185628
-num__dist,-0.5025942666912699
-num__aerial_won,-0.441414417775638
-num__angle,0.2751832425041455
-cat__dlv_technique_Inswinging,-0.2735392751895114
-cat__dlv_technique_Outswinging,-0.24086694624137117
-num__under_pressure,0.21828452629373138
-num__dlv_length,-0.1945109198873736
-cat__dlv_type_free_kick,0.1821974956475605
-num__n_def_in_cone,-0.1523872454115721
-num__dlv_pace,0.1427150895849961
-cat__dlv_type_throw_in,-0.13684758929410065
-num__n_opp_in_box,-0.13660363209889212
-num__gk_in_cone,-0.10818287384985747
-cat__dlv_technique_none,-0.08549416430196484
-num__gk_dist_shooter,-0.0851739857485493
-num__dlv_start_x,-0.0791087498090497
-num__score_diff,0.07826734241035034
-num__diving,0.07684739044179868
-num__dlv_wide,0.07656961169431123
-num__n_opp_within_2m,-0.06883647758745717
-cat__dlv_type_cross_open_play,-0.06643703929307775
-num__gk_dist_goal,0.06191191936397064
-num__missingindicator_dlv_pace,-0.06118641828159053
-num__nearest_opp_dist,0.06084094272343847
-cat__dlv_height_Ground Pass,-0.05117909457229341
-cat__dlv_type_headed_flick,-0.05089860631007895
-cat__dlv_type_short_pass,-0.04957557426540306
-num__turn_angle,0.04927425259766293
-cat__dlv_type_corner,0.04654971821045715
-num__in_six,0.03801514420218617
-cat__dlv_type_long_ball,0.0343794693060256
-cat__dlv_height_High Pass,0.03156889307216702
-cat__dlv_technique_Straight,0.02821289805006439
-num__n_att_in_cone,-0.02512398149349528
-cat__dlv_height_Low Pass,-0.021021924498512826
-num__dlv_flight_time,0.011612389292775013
-num__missingindicator_gk_dist_goal,0.011406942076262572
-num__missingindicator_gk_dist_shooter,0.011406942076262572
-num__missingindicator_dlv_start_x,0.008705150147237098
-num__missingindicator_turn_angle,0.008705150147237098
-num__missingindicator_dlv_flight_time,0.008705150147237098
-num__missingindicator_dlv_wide,0.008705150147237098
-num__missingindicator_dlv_length,0.00870515014722897
-cat__dlv_type_none,0.00041942723441100444
-cat__dlv_height_none,0.00041942723441100444
+num__dist,-0.49386906022731303
+cat__dlv_technique_Through Ball,0.4915453262911757
+num__aerial_won,-0.4618479996810613
+cat__dlv_technique_Inswinging,-0.3222880165260378
+num__angle,0.2778187791696206
+cat__dlv_technique_Outswinging,-0.273480187942992
+num__under_pressure,0.23705986773314763
+num__dlv_length,-0.1781274336998449
+num__n_def_in_cone,-0.15133725707208995
+cat__dlv_type_throw_in,-0.14712466412969097
+cat__dlv_technique_none,-0.14388323332350492
+cat__dlv_type_free_kick,0.1435235889574555
+num__n_opp_in_box,-0.14012444582485714
+num__dlv_pace,0.13631105815682718
+num__gk_in_cone,-0.1100734988506786
+cat__dlv_height_Low Pass,-0.10245067402324019
+cat__dlv_type_cross_open_play,-0.09420439467093679
+cat__dlv_height_Ground Pass,-0.0928948856390388
+num__gk_dist_shooter,-0.0883199706122457
+num__score_diff,0.07775548251182407
+num__diving,0.07718280194636791
+cat__dlv_type_headed_flick,-0.0737137562075381
+num__dlv_wide,0.07300272924576635
+num__n_opp_within_2m,-0.07126376072841659
+num__dlv_start_x,-0.06907904635834815
+num__nearest_opp_dist,0.0625345554398885
+cat__dlv_type_short_pass,-0.06171192091776082
+num__gk_dist_goal,0.05977138402195226
+num__missingindicator_dlv_pace,-0.05538068302202646
+cat__dlv_height_High Pass,-0.04659794060486657
+num__turn_angle,0.044981660318685675
+num__in_six,0.0396166230814138
+num__height_cm,0.03346780550460249
+num__missingindicator_height_cm,-0.031024859800925387
+num__n_att_in_cone,-0.027987061632007346
+cat__dlv_type_corner,-0.018601202826208616
+num__missingindicator_gk_dist_shooter,0.011766039260049507
+num__missingindicator_gk_dist_goal,0.011766039260049507
+cat__dlv_type_long_ball,0.009888849527533449
+num__missingindicator_dlv_flight_time,0.006013645222267918
+num__missingindicator_dlv_length,0.006013645222267918
+num__missingindicator_turn_angle,0.006013645222267918
+num__missingindicator_dlv_start_x,0.006013645222267918
+num__missingindicator_dlv_wide,0.006013645222267918
+cat__dlv_technique_Straight,0.005307197782186015
+num__dlv_flight_time,0.0025551842256329466
+cat__dlv_type_none,-0.0008554134520231722
+cat__dlv_height_none,-0.0008554134520231722
