@@ -29,6 +29,7 @@ How good are players with their heads, in attack and in defense, once you accoun
 |---|---|---|
 | [StatsBomb open data](https://github.com/statsbomb/open-data) | Events, shot freeze frames, 360 frames, lineups for 2,651 men's matches | StatsBomb public data user agreement. Free for research, no redistribution of the raw data, analysis must credit StatsBomb with their logo |
 | [Transfermarkt dataset by dcaribou](https://github.com/dcaribou/transfermarkt-datasets) | Player height, birth date, nationality, club history | CC0 |
+| [EA FC player ratings by Stefano Leone](https://www.kaggle.com/datasets/stefanoleone992/fifa-22-complete-player-dataset) | Video game ratings (jumping, strength, heading, sprint speed, weight), FIFA 15 to 22. Side test only | Scraped from sofifa.com. Not republished here |
 | [Metrica Sports sample data](https://github.com/metrica-sports/sample-data) | Two anonymised games of tracking data (Stage 5 only) | Free to use, public use should acknowledge Metrica Sports |
 
 The raw data is **not** in this repository, because the StatsBomb agreement does not allow redistributing it. The scripts download it.
@@ -64,6 +65,10 @@ Two choices worth knowing about.
 
 Free event data has no speed, so a small side test uses Metrica Sports' two anonymised sample games (25 frames per second). For 38 aerial duels where both players are tracked, speed, peak speed, run up distance and movement toward the ball in the second before contact do not pick the winner better than a coin flip (leave one out AUC 0.53, range 0.34 to 0.73). The sample is far too small to rule out a modest effect. Details, including a leak caught on the first attempt, are in [results/stage5_tracking.md](results/stage5_tracking.md).
 
+## Do strength, jumping and speed explain it?
+
+EA FC ratings (FIFA 15 to 22) were matched to players as rough proxies for physical traits, and kept out of the main models so rankings stay "above what height predicts". Added to the duel model they lift AUC from 0.667 to 0.675, and they add nothing to header xG or accuracy. Among 483 players with 100+ duels, EA's jumping rating has the strongest link with winning more duels than height predicts (Spearman 0.28), then heading (0.18) and strength (0.12), while sprint speed shows none. All the ratings together explain only 12% of the spread, so most of what separates the best players in the air is not in the ratings. Details in [results/ea_ratings.md](results/ea_ratings.md).
+
 ## Rankings
 
 Players are compared with out of fold predictions, so a player is never judged by a model that saw his own headers. Above-expected numbers are shrunk toward zero with empirical Bayes, so small samples are pulled toward average. Each metric's reliability is measured by splitting every player's matches into two random halves and correlating the halves across players.
@@ -92,6 +97,9 @@ HQ_NO_PHYSICAL=1 python src/models_defense.py
 python src/stage3_report.py
 python src/rankings.py                # Stage 4
 python src/stage4_report.py
+# optional EA test: unzip players_15.csv ... players_22.csv into data/external/ea/,
+# rerun python src/match_players.py, then
+python src/ea_ratings.py
 python src/charts.py                  # Stage 6
 python src/stage5_tracking.py         # Stage 5 stretch, Metrica sample tracking data
 ```
@@ -109,7 +117,7 @@ WRITEUP.md      one page summary for scouts and analysts
 ## Limitations
 
 - Most volume comes from the 2015/16 seasons of the Premier League, La Liga, Serie A and Ligue 1. Other club seasons in the open data follow one team (mostly Barcelona), so those players and their opponents are over represented.
-- Free data has no measure of strength, jumping reach or speed. A player's above-expected number contains all of them at once.
+- Free data has no measure of strength, jumping reach or speed. The only proxies are EA video game ratings, which are opinions, so a player's above-expected number still bundles all of them together.
 - Heights are missing for about 10% of headers, and duel rankings only include players with a known height.
 - Only 47 players have 25+ headed shots, which limits anything said about individual finishing.
 - StatsBomb clearances have no end location, so where a clearance landed is approximated by the location of the next event.

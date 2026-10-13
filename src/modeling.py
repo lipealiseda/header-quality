@@ -109,8 +109,14 @@ def physical_columns(df, prefix=""):
     heights are joined this returns nothing and the models run without them."""
     if os.environ.get("HQ_NO_PHYSICAL"):  # used to measure what height adds
         return []
-    cols = [c for c in df.columns if c.startswith(prefix) and any(
-        k in c for k in ("height_cm", "weight_kg", "ea_strength", "ea_jumping", "ea_heading", "ea_sprint"))]
+    # main models use height only. EA ratings are tested separately in ea_ratings.py,
+    # since an "expected" that already knows a player's heading rating would no longer
+    # measure what the ranking is meant to measure.
+    keys = ("height_cm",)
+    if os.environ.get("HQ_WITH_EA"):
+        keys = ("height_cm", "weight_kg", "ea_strength", "ea_jumping", "ea_heading", "ea_sprint")
+    cols = [c for c in df.columns if c.startswith(prefix) and any(k in c for k in keys)
+            and not c.startswith(prefix + "ea_height") and not c.startswith(prefix + "ea_weight")]
     return [c for c in cols if df[c].notna().mean() >= 0.3]
 
 

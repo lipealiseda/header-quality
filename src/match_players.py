@@ -173,7 +173,7 @@ def load_sources():
     for f in sorted((EXT / "ea").glob("players_*.csv")):
         v = int(re.findall(r"\d+", f.stem)[0])
         df = pd.read_csv(f, low_memory=False)
-        ea[v] = (Source(df, ["long_name", "short_name"], "nationality_name", "club_name"), df)
+        ea[v] = (Source(df, ["long_name", "short_name"], "nationality_name", "club_name", "dob"), df)
     return src, ea
 
 
@@ -223,8 +223,12 @@ def main():
             vv = min(ea, key=lambda k: abs(k - v))
             s, df = ea[vv]
             i, score = s.best(names, country, clubs.get(pid), years.get(pid), nick)
-            if i is not None:
-                rec = df.loc[i]
+            rec = df.loc[i] if i is not None else None
+            # an EA height far from the Transfermarkt height means EA matched someone else
+            if rec is not None and not np.isnan(row["height_cm"]) and pd.notna(rec.get("height_cm")) \
+                    and abs(rec["height_cm"] - row["height_cm"]) > 5:
+                rec = None
+            if rec is not None:
                 row.update({
                     "ea_version": vv,
                     "ea_height_cm": rec.get("height_cm"), "ea_weight_kg": rec.get("weight_kg"),
@@ -233,8 +237,8 @@ def main():
                     "ea_sprint": rec.get("movement_sprint_speed"),
                     "ea_accel": rec.get("movement_acceleration"),
                 })
-                if np.isnan(row["height_cm"]) and pd.notna(rec.get("height_cm")):
-                    row.update(height_cm=float(rec["height_cm"]), height_source="ea", match_score=score)
+                # EA heights are not used to fill gaps, so the main models stay on one
+                # height source (Transfermarkt) and earlier results do not shift
                 if np.isnan(row["weight_kg"]) and pd.notna(rec.get("weight_kg")):
                     row["weight_kg"] = float(rec["weight_kg"])
         out.append(row)
