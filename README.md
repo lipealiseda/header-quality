@@ -1,0 +1,115 @@
+# Header quality in football
+
+How good are players with their heads, in attack and in defense, once you account for the situation they were in? This project builds expected-value models for headers from free event data and uses them to rank players, then checks which of those rankings measure a real skill and which are mostly luck.
+
+**Read the one page summary first** → [WRITEUP.md](WRITEUP.md)
+
+![Height and aerial duels](figures/d1_height_and_duels.png)
+
+## Main findings
+
+- Winning aerial duels is a repeatable skill. Split-half reliability is 0.67 even after the model accounts for both players' heights, positions, the delivery and the location.
+- Height is the third biggest driver of who wins a duel. A defender 10+ cm taller than his man wins about 3 in 4, one 10+ cm shorter about 4 in 10.
+- Height does not help once the header is won. Taller players do not beat their headed xG.
+- Headed goals minus xG cannot be told apart from luck in this data (reliability 0.02).
+- The header xG model (logistic regression, AUC 0.743) is close to StatsBomb's own xG on the same shots (AUC 0.749).
+
+## Charts
+
+| Attack | Defense |
+|---|---|
+| ![](figures/a1_header_goal_map.png) | ![](figures/d1_height_and_duels.png) |
+| ![](figures/a2_delivery_type.png) | ![](figures/d2_clearance_danger_map.png) |
+| ![](figures/a3_attack_drivers.png) | ![](figures/d3_best_defenders_in_the_air.png) |
+| ![](figures/a4_finishing_is_luck.png) | ![](figures/d4_which_metrics_are_skill.png) |
+
+## Data
+
+| Source | What it gives | Licence |
+|---|---|---|
+| [StatsBomb open data](https://github.com/statsbomb/open-data) | Events, shot freeze frames, 360 frames, lineups for 2,651 men's matches | StatsBomb public data user agreement. Free for research, no redistribution of the raw data, analysis must credit StatsBomb with their logo |
+| [Transfermarkt dataset by dcaribou](https://github.com/dcaribou/transfermarkt-datasets) | Player height, birth date, nationality, club history | CC0 |
+
+The raw data is **not** in this repository, because the StatsBomb agreement does not allow redistributing it. The scripts download it.
+
+| Dataset built in Stage 2 | Rows |
+|---|---|
+| Headed shots | 10,327 (1,101 goals) |
+| Aerial duels with both players known | 95,942 |
+| Defensive headers (headed clearances, plus headed passes in a team's own third after an opponent's ball) | 75,968 |
+
+Column definitions are in [docs/data_dictionary.md](docs/data_dictionary.md).
+
+## Models
+
+Every model is fit twice, as a logistic regression and as a gradient boosting model (scikit-learn `HistGradientBoostingClassifier`), and scored with 5 fold cross validation grouped by match.
+
+| Target | Rows | Best model | AUC | Log loss skill vs base rate |
+|---|---|---|---|---|
+| Headed shot is a goal (xG) | 10,327 | Logistic | 0.743 | 11.8% |
+| Headed shot is on target | 10,327 | Logistic | 0.628 | 3.6% |
+| Defending player wins the aerial duel | 93,684 | Boosting | 0.667 | 6.5% |
+| Opponent shoots within 10 s of a defensive header | 75,968 | Boosting | 0.739 | 10.6% |
+| Defending team wins the next ball | 68,844 | Boosting | 0.694 | 11.1% |
+
+Full results, including the effect of adding height, are in [results/stage3_summary.md](results/stage3_summary.md).
+
+Two choices worth knowing about.
+
+1. StatsBomb's `under_pressure` flag was dropped from the attack models. It duplicates the distance to the nearest defender, and with both in the model the flag took a misleading positive sign even though pressured headers score about half as often.
+2. Whether a defensive header was logged as a Pass or a Clearance was kept out of the clearance models, because StatsBomb tends to log a header as a pass when it reaches a teammate, which would leak the outcome.
+
+## Rankings
+
+Players are compared with out of fold predictions, so a player is never judged by a model that saw his own headers. Above-expected numbers are shrunk toward zero with empirical Bayes, so small samples are pulled toward average. Each metric's reliability is measured by splitting every player's matches into two random halves and correlating the halves across players.
+
+Full tables are in [results/stage4_rankings.md](results/stage4_rankings.md) and `results/rank_*.csv`.
+
+## Reproduce it
+
+```bash
+pip install -r requirements.txt
+
+python src/download_statsbomb.py      # about 30 minutes, around 11 GB on disk
+python src/build_dataset.py           # Stage 2, about 2 minutes
+python src/check_dataset.py
+
+# heights: download players.csv from https://www.kaggle.com/datasets/davidcariboo/player-scores
+# and save it as data/external/transfermarkt_players.csv
+# optional, better matching: also save appearances.csv and clubs.csv there, then
+python src/build_tm_clubs.py
+python src/match_players.py
+
+python src/models_attack.py           # Stage 3
+python src/models_defense.py
+python src/rankings.py                # Stage 4
+python src/stage4_report.py
+python src/charts.py                  # Stage 6
+python src/stage5_tracking.py         # Stage 5 stretch, Metrica sample tracking data
+```
+
+## Repository layout
+
+```
+src/            all code, one script per stage
+figures/        the eight charts
+results/        model metrics, drivers, calibration, rankings
+docs/           data dictionary
+WRITEUP.md      one page summary for scouts and analysts
+```
+
+## Limitations
+
+- Most volume comes from the 2015/16 seasons of the Premier League, La Liga, Serie A and Ligue 1. Other club seasons in the open data follow one team (mostly Barcelona), so those players and their opponents are over represented.
+- Free data has no measure of strength, jumping reach or speed. A player's above-expected number contains all of them at once.
+- Heights are missing for about 10% of headers, and duel rankings only include players with a known height.
+- Only 47 players have 25+ headed shots, which limits anything said about individual finishing.
+- StatsBomb clearances have no end location, so where a clearance landed is approximated by the location of the next event.
+
+## Credits
+
+Data provided by StatsBomb.
+
+<img src="assets/statsbomb_logo.png" alt="StatsBomb" width="220">
+
+Player heights from the Transfermarkt dataset maintained by David Cariboo (CC0).
