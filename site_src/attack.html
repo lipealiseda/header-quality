@@ -41,10 +41,11 @@
   <div class="key"><p>Height is not on either list. Taller players do not score more than their xG says, and adding height to the model left its accuracy unchanged. Height helps a player reach the ball. Once he has, position and space decide the rest.</p></div>
 
   <h2>How good is the model</h2>
-  <p>The model was tested on matches it never saw during training. It ranks a random goal above a random miss 74% of the time (AUC 0.743), close to StatsBomb's own professional xG on the same shots (0.749). It is also well calibrated. When it gives a group of headers about a 10% chance, 10.7% of them go in.</p>
+  <p>The model was tested on matches it never saw during training. It ranks a random goal above a random miss 74% of the time (AUC 0.743, with a 95% interval of 0.728 to 0.758). StatsBomb's own professional xG scores 0.749 on the same headers. The difference of 0.006 is well inside the noise, so the two cannot be told apart (paired test p = 0.20).</p>
+  <p>The model's probabilities are also honest. When it gives a group of headers about a 10% chance, 10.7% of them go in, and across all headers it predicts 0.106 goals per header against a real rate of 0.107. The <a href="method.html">Method page</a> has the full calibration check.</p>
 
   <h2>Does anyone finish headers better than expected?</h2>
-  <p>This was one of the main questions, and the honest answer is that the data cannot tell. Only 47 players have 25 or more headed shots, and their goals sit inside the range that luck alone would produce.</p>
+  <p>This was one of the main questions, and the honest answer is that the data cannot tell. Only 47 players have 25 or more headed shots, and their goals sit inside the range that luck alone would produce. Chapter 4 puts a number on it. Finishing above xG has a reliability of about zero, with a 95% interval that still reaches 0.53, so moderate skill cannot be ruled out.</p>
 </div>
 
 <figure>
@@ -53,5 +54,5 @@
 </figure>
 
 <div class="col">
-  <div class="key warn"><p>A list of who beats their headed xG is easy to make and looks convincing. Chapter 4 shows why it should not be trusted.</p></div>
+  <div class="key warn"><p>A list of who beats their headed xG is easy to make and looks convincing. With this little data per player, it should not be trusted in either direction.</p></div>
 </div>

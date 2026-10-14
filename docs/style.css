@@ -199,11 +199,12 @@ tr.hl td { background: var(--blue-wash); }
 #duels th[aria-sort] button { color: var(--ink); }
 #duels th[aria-sort="descending"] button::after { content: " \2193"; }
 #duels th[aria-sort="ascending"] button::after { content: " \2191"; }
-#duels { font-size: 0.9rem; }
-#duels th, #duels td { padding: 0.5rem 0.5rem; white-space: nowrap; vertical-align: middle; }
+#duels { font-size: 0.86rem; }
+#duels th, #duels td { padding: 0.5rem 0.38rem; white-space: nowrap; vertical-align: middle; }
 #duels th { white-space: normal; vertical-align: bottom; line-height: 1.25; }
-#duels td.club { max-width: 11rem; overflow: hidden; text-overflow: ellipsis; }
-.bar-cell { width: 11rem; min-width: 9rem; }
+#duels td.club { max-width: 8.5rem; overflow: hidden; text-overflow: ellipsis; }
+#duels th:last-child { max-width: 6.5rem; }
+.bar-cell { width: 8rem; min-width: 7.5rem; }
 .range { position: relative; height: 1rem; }
 .range .axis { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--line-strong); }
 .range .span { position: absolute; top: 45%; height: 3px; border-radius: 2px; opacity: 0.45; }
@@ -232,3 +233,17 @@ tr.hl td { background: var(--blue-wash); }
   h2 { font-size: 1.6rem; margin-top: 2.8rem; }
   .site-head .inner { gap: 0.6rem; }
 }
+
+/* rankings: numeric range under the bar, and the two player comparison */
+.range-txt { display: block; font-size: 0.78rem; color: var(--ink-3); text-align: center; margin-top: 0.1rem; font-variant-numeric: tabular-nums; }
+.compare { display: flex; flex-wrap: wrap; gap: 0.8rem 1.2rem; align-items: end; font-family: var(--sans); margin: 1rem 0 0.5rem; max-width: var(--measure); }
+.compare label { display: grid; gap: 0.25rem; font-size: 0.85rem; color: var(--ink-2); flex: 1 1 14rem; }
+.compare input {
+  font: inherit; font-size: 0.98rem; color: var(--ink); background: #fff; height: 2.4rem;
+  border: 1px solid var(--line-strong); border-radius: 5px; padding: 0 0.6rem; width: 100%;
+}
+.cmp-out { flex-basis: 100%; margin: 0.4rem 0 0; font-family: var(--serif); font-size: 1.05rem; color: var(--ink); }
+.cmp-out strong { font-family: var(--sans); font-stretch: 80%; font-size: 1.35rem; color: var(--blue-ink); margin-right: 0.15rem; }
+
+td.num { white-space: nowrap; }
+#duels .of { color: var(--ink-3); font-size: 0.85em; }

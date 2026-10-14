@@ -7,19 +7,44 @@
 <div class="col">
   <h2>The models</h2>
   <p>Each question got two models, a logistic regression and a gradient boosting model from scikit-learn. They were scored with five fold cross validation grouped by match, so a match is never used for training and testing at the same time. The predictions used for player rankings are out of fold, which means a player is never judged by a model that saw his own headers.</p>
+  <p>Every number below has a 95% interval from a match bootstrap. The matches are resampled with replacement 1,000 times and each score is worked out again. Whole matches are resampled because headers in the same match are related. The predictions stay fixed in this process, so the intervals cover which matches happen to be in the data, not the effect of refitting the model.</p>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Question</th><th class="num">Rows</th><th>Better model</th><th class="num">AUC</th></tr></thead>
+      <thead><tr><th>Question</th><th class="num">Rows</th><th>Better model</th><th class="num">AUC (95% interval)</th><th class="num">Brier score</th><th class="num">Calibration slope</th></tr></thead>
       <tbody>
-        <tr><td>Is the headed shot a goal?</td><td class="num">10,327</td><td>Logistic</td><td class="num">0.743</td></tr>
-        <tr><td>Is it on target?</td><td class="num">10,327</td><td>Logistic</td><td class="num">0.628</td></tr>
-        <tr><td>Does the defending player win the aerial duel?</td><td class="num">93,684</td><td>Boosting</td><td class="num">0.667</td></tr>
-        <tr><td>Does the opponent shoot within 10 seconds of a defensive header?</td><td class="num">75,968</td><td>Boosting</td><td class="num">0.739</td></tr>
-        <tr><td>Does the defending team win the next ball?</td><td class="num">68,844</td><td>Boosting</td><td class="num">0.694</td></tr>
+        <tr><td>Is the headed shot a goal?</td><td class="num">10,327</td><td>Logistic</td><td class="num">0.743 (0.728 to 0.758)</td><td class="num">0.086</td><td class="num">0.94</td></tr>
+        <tr><td>Is it on target?</td><td class="num">10,327</td><td>Logistic</td><td class="num">0.628 (0.617 to 0.640)</td><td class="num">0.205</td><td class="num">0.89</td></tr>
+        <tr><td>Does the defending player win the aerial duel?</td><td class="num">93,684</td><td>Boosting</td><td class="num">0.667 (0.663 to 0.670)</td><td class="num">0.222</td><td class="num">1.04</td></tr>
+        <tr><td>Does the opponent shoot within 10 seconds of a defensive header?</td><td class="num">75,968</td><td>Boosting</td><td class="num">0.739 (0.733 to 0.745)</td><td class="num">0.073</td><td class="num">1.03</td></tr>
+        <tr><td>Does the defending team win the next ball?</td><td class="num">68,844</td><td>Boosting</td><td class="num">0.694 (0.689 to 0.698)</td><td class="num">0.213</td><td class="num">1.05</td></tr>
       </tbody>
     </table>
   </div>
-  <p class="small">AUC is the chance the model rates a random success above a random failure. 0.5 is a coin flip and 1 is perfect. The simple logistic model won for headed shots, where there are about 10,000 rows, and boosting won for the larger defensive tables.</p>
+  <p class="small">AUC is the chance the model rates a random success above a random failure, where 0.5 is a coin flip and 1 is perfect. The Brier score is the average squared gap between prediction and outcome, so lower is better. A calibration slope of 1 means predictions are as spread out as they should be, below 1 means a little too extreme and above 1 a little too cautious. Full tables, including log loss skill with intervals, are in the <a href="https://github.com/lipealiseda/header-quality/blob/main/results/stage3_summary.md">results on GitHub</a>.</p>
+
+  <h2>Are the probabilities honest?</h2>
+  <p>A model can rank shots well and still give the wrong numbers, for example by calling every header a 20% chance when the real rate is 10%. Calibration checks this. Headers are grouped into ten bins by their predicted chance, and each bin's average prediction is compared with how often those headers actually went in.</p>
+</div>
+
+<figure>
+  <img src="img/m1_xg_calibration.png" alt="Calibration chart for header xG. Ten bins for this project's model sit on the diagonal from about 2% to 35%. StatsBomb's xG sits slightly below the diagonal between 4% and 11%. This project's calibration slope is 0.94, from 0.88 to 1.01, and StatsBomb's is 1.09, from 1.02 to 1.17." width="1350" height="900" loading="lazy">
+  <figcaption>Every one of the five models was checked the same way. No model is off by more than 1.7 percentage points on average across its bins.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>How the xG compares with StatsBomb's</h2>
+  <p>StatsBomb publishes its own professional xG for every shot, so the header model can be compared with it on exactly the same 10,327 headers. The comparison is paired, meaning both models are scored on the same resampled matches each time, which removes the noise that comes from the matches themselves.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Measure</th><th class="num">This project</th><th class="num">StatsBomb</th><th class="num">Difference (95% interval)</th><th class="num">p</th></tr></thead>
+      <tbody>
+        <tr><td>AUC</td><td class="num">0.743</td><td class="num">0.749</td><td class="num">&minus;0.006 (&minus;0.014 to +0.003)</td><td class="num">0.20</td></tr>
+        <tr><td>Brier score</td><td class="num">0.0856</td><td class="num">0.0850</td><td class="num">+0.0006 (&minus;0.0001 to +0.0014)</td><td class="num">0.12</td></tr>
+        <tr><td>Average prediction (actual 0.107)</td><td class="num">0.106</td><td class="num">0.111</td><td class="num"></td><td class="num"></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The two models cannot be told apart on ranking headers. DeLong's test for two AUCs on the same data gives the same answer (p = 0.18), though it assumes every shot is independent, so the match bootstrap is the main result. This model is the better calibrated of the two here, with no overall bias and a slope whose interval includes 1. That comparison favours it a little, since it was fit and tested on these same competitions while StatsBomb's xG is a general model.</p>
 
   <h2>Mistakes caught along the way</h2>
   <p>Each of these would have made the results look better or different than they really are. They are listed because checking for them is most of the work.</p>
@@ -43,7 +68,8 @@
   <ul>
     <li>Most of the data comes from the 2015/16 season of four leagues, so the rankings describe those years more than today.</li>
     <li>Strength, jumping reach and speed are not measured, only approximated by game ratings. A player's above expected number contains all of them at once.</li>
-    <li>Only 47 players have 25 or more headed shots, which is the main reason finishing cannot be judged.</li>
+    <li>Only 47 players have 25 or more headed shots. That is why the reliability of headed finishing has such a wide interval, and why finishing skill can neither be confirmed nor ruled out.</li>
+    <li>The player ranges treat the spread of skill between players as known, so they are slightly too narrow for players near the minimum sample.</li>
     <li>The duel model is useful but modest. Context it does not see, like a team's set piece routines, could still be hiding in player numbers.</li>
     <li>Clearances have no end location in StatsBomb data, so where a clearance landed is approximated by the next event.</li>
   </ul>

@@ -51,22 +51,24 @@
     <li>Every match is randomly assigned to group A or group B. A whole match always goes to one side, so things like a weak opponent cannot appear in both halves.</li>
     <li>Each player's above expected number is worked out separately in group A and in group B.</li>
     <li>Across all players, the A numbers are correlated with the B numbers. If good players in A are also good in B, the metric is measuring something real.</li>
-    <li>Each half only has half the data, so the result is scaled up to full length with a standard correction (Spearman Brown), and the whole process is repeated 50 times and averaged.</li>
+    <li>Each half only has half the data, so the correlation is scaled up to the full sample with a standard formula, the Spearman Brown correction.</li>
+    <li>The whole process is repeated for 200 different random splits. The average is the reliability. To get a 95% interval, every repetition also resamples the players with replacement, so the interval reflects both the random split and which players happen to be in the data.</li>
   </ol>
   <p>A reliability of 0 means the ranking is pure luck. A reliability of 1 means it is pure skill. Around 0.5 and above, a ranking is worth using.</p>
 </div>
 
 <figure>
-  <img src="img/d4_which_metrics_are_skill.png" alt="Bar chart of reliability for five metrics. Aerial duels won above expected scores 0.67. Headers on target above expected 0.24, opponent shots prevented 0.17, next ball won 0.05 and headed goals minus xG 0.02." width="1350" height="780" loading="lazy">
+  <img src="img/d4_which_metrics_are_skill.png" alt="Reliability of five metrics with 95% intervals. Aerial duels won above expected scores 0.67, from 0.59 to 0.74. Headers on target 0.21, opponent shots prevented 0.16, next ball won 0.03 and headed goals minus xG about 0, each with intervals that start below zero." width="1350" height="810" loading="lazy">
 </figure>
 
 <div class="col">
-  <p>Only one metric clears the bar. Aerial duel ability repeats strongly, even though the model behind it already knows both players' heights. Heading accuracy and clearance quality show a weak signal. Headed finishing and winning the next ball look like luck at these sample sizes.</p>
+  <p>Only one metric clears the bar. Aerial duel ability repeats strongly, with a 95% interval of 0.59 to 0.74, even though the model behind it already knows both players' heights. Its lower end is above every other metric's estimate.</p>
+  <p>The other four show no clear signal, but the intervals tell an important second story. Headed finishing has a reliability of about zero, yet its interval reaches 0.53, because only 47 players have 25 or more headed shots. So the data finds no evidence that some players finish headers better than others, but it cannot rule out a moderate amount of skill either. Heading accuracy is in the same position, with an interval up to 0.60.</p>
 
   <h2>Is it the player or his team?</h2>
   <p>A team that defends crosses well could make all its defenders look good. To check, each player's duel number was compared with the number for his teammates in the same matches. The correlation is only 0.10, and the spread between teams is about a third of the spread between players. Aerial duel skill looks individual.</p>
 
-  <div class="key"><p>For scouting in the air, use aerial duels won above expectation. Treat headed goals above xG as noise until there is far more data per player.</p></div>
+  <div class="key"><p>For scouting in the air, use aerial duels won above expectation. Do not trust headed goals above xG yet. Free data has too few headers per player to tell finishing skill from luck in either direction.</p></div>
 </div>
 
 <nav class="pager" aria-label="Chapters"><a class="prev" href="defense.html"><span class="dir">Previous</span><span class="t">Defensive headers</span></a><a class="next" href="rankings.html"><span class="dir">Next</span><span class="t">Rankings</span></a></nav>

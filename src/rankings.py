@@ -13,15 +13,18 @@ much true skill varies between players, estimated from the data. A player with f
 headers is pulled almost all the way to zero, one with hundreds keeps most of his
 number.
 
-We also report split half reliability. Each player's events are split randomly in
-two and the above-expected rates of the halves are correlated across players. Near
-zero means the metric is mostly luck, higher means it captures a repeatable skill.
+Every player also gets a posterior interval (80% and 95%) and, for aerial duels, a
+95% range for his rank from posterior simulation.
+
+We also report split half reliability with uncertainty (see split_half). Near zero
+means the metric is mostly luck, higher means it captures a repeatable skill.
 """
 import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy.stats import norm
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from modeling import PROC, RES, SEED  # noqa: E402
@@ -58,33 +61,81 @@ def player_table(ev, actual, expected, min_n):
     tau2 = tau2_estimate(g)
     g["weight"] = tau2 / (tau2 + g["sigma2"] / g["n"])
     g["shrunk_rate"] = g["raw_rate"] * g["weight"]
-    # a rough 80% interval for the shrunk rate (posterior sd under a normal model)
-    post_sd = np.sqrt(1 / (1 / tau2 + g["n"] / g["sigma2"])) if tau2 > 0 else 0
-    g["lo80"], g["hi80"] = g["shrunk_rate"] - 1.28 * post_sd, g["shrunk_rate"] + 1.28 * post_sd
+    # posterior under the normal model behind the shrinkage: prior N(0, tau2) for a
+    # player's true rate, likelihood N(raw_rate, sigma2 / n). It treats tau2 as known,
+    # so intervals are slightly too narrow for players with small samples.
+    post_sd = np.sqrt(1 / (1 / tau2 + g["n"] / g["sigma2"])) if tau2 > 0 else 0 * g["n"]
+    g["post_sd"] = post_sd
+    g["lo80"], g["hi80"] = g["shrunk_rate"] - 1.2816 * post_sd, g["shrunk_rate"] + 1.2816 * post_sd
+    g["lo95"], g["hi95"] = g["shrunk_rate"] - 1.96 * post_sd, g["shrunk_rate"] + 1.96 * post_sd
+    with np.errstate(divide="ignore", invalid="ignore"):
+        g["p_above_avg"] = np.where(post_sd > 0, norm.cdf(g["shrunk_rate"] / post_sd), 0.5)
     g["qualified"] = g["n"] >= min_n
     return g, tau2
 
 
-def split_half(ev, actual, expected, min_n, reps=50):
-    """Average correlation between the two random halves, Spearman Brown corrected
-    to full sample length."""
+def split_half(ev, actual, expected, min_n, reps=200):
+    """Split half reliability with uncertainty.
+
+    Each repetition splits the matches at random into two halves (a whole match always
+    goes to one side), works out every qualified player's above-expected rate in each
+    half and correlates the halves across players. The Spearman Brown correction
+    2r / (1 + r) turns that half sample correlation into the reliability of the full
+    sample. Reported are the mean over repetitions, the spread caused by the random
+    split alone (2.5 to 97.5 percentiles), and a 95% interval that also resamples the
+    players with replacement in each repetition, so it reflects which players happen
+    to be in the data as well."""
     ev = ev[["player_id", "match_id", actual, expected]].copy()
     ev["resid"] = ev[actual] - ev[expected]
     keep = ev.groupby("player_id")["resid"].transform("size") >= min_n
     ev = ev[keep]
     matches = ev["match_id"].unique()
-    rs = []
+    sb = lambda r: 2 * r / (1 + r)  # noqa: E731
+    r_split, r_boot = [], []
     for _ in range(reps):
-        # halves are split by match, so one match never feeds both halves
         side = pd.Series(RNG.integers(0, 2, len(matches)), index=matches)
         half = ev["match_id"].map(side).values
-        t = ev.assign(h=half).groupby(["player_id", "h"])["resid"].mean().unstack()
-        t = t.dropna()
-        if len(t) > 10:
-            rs.append(t[0].corr(t[1]))
-    r = float(np.mean(rs)) if rs else np.nan
-    return {"players": int(ev["player_id"].nunique()), "split_half_r": r,
-            "full_length_reliability": 2 * r / (1 + r) if r == r and r > -1 else np.nan}
+        t = ev.assign(h=half).groupby(["player_id", "h"])["resid"].mean().unstack().dropna()
+        if len(t) <= 10:
+            continue
+        r_split.append(t[0].corr(t[1]))
+        tb = t.iloc[RNG.integers(0, len(t), len(t))]
+        r_boot.append(tb[0].corr(tb[1]))
+    r_split, r_boot = np.array(r_split), np.array(r_boot)
+    q = lambda a, x: float(np.quantile(a, x))  # noqa: E731
+    return {
+        "players": int(ev["player_id"].nunique()), "splits": len(r_split),
+        "split_half_r": float(r_split.mean()),
+        "half_r_split_lo": q(r_split, 0.025), "half_r_split_hi": q(r_split, 0.975),
+        "half_r_ci_lo": q(r_boot, 0.025), "half_r_ci_hi": q(r_boot, 0.975),
+        "full_length_reliability": float(sb(r_split).mean()),
+        "rel_split_lo": q(sb(r_split), 0.025), "rel_split_hi": q(sb(r_split), 0.975),
+        "rel_ci_lo": q(sb(r_boot), 0.025), "rel_ci_hi": q(sb(r_boot), 0.975),
+    }
+
+
+RANK_GROUPS = {"def": ["CB", "FB"], "fwd": ["ST", "W", "AM"], "mid": ["DM", "CM", "WM"], "all": None}
+
+
+def add_rank_ranges(out, draws=4000):
+    """95% range of each qualified player's rank, from posterior simulation. Each draw
+    takes every player's true rate from his posterior, ranks the group, and the 2.5 and
+    97.5 percentiles of a player's rank across draws give his rank range. A wide
+    range means the data cannot place him precisely among his peers."""
+    out = out.copy()
+    for grp, pos in RANK_GROUPS.items():
+        sel = out["qualified"] & out["pos_group"].isin(pos if pos else out["pos_group"].unique()) \
+            & (out["pos_group"] != "GK")
+        sub = out[sel]
+        if not len(sub):
+            continue
+        sims = RNG.normal(sub["shrunk_rate"].values[None, :], sub["post_sd"].values[None, :],
+                          size=(draws, len(sub)))
+        ranks = (-sims).argsort(axis=1).argsort(axis=1) + 1
+        out.loc[sub.index, f"rank_{grp}"] = (-sub["shrunk_rate"]).rank(method="first").astype(int).values
+        out.loc[sub.index, f"rank_{grp}_lo"] = np.quantile(ranks, 0.025, axis=0).round().astype(int)
+        out.loc[sub.index, f"rank_{grp}_hi"] = np.quantile(ranks, 0.975, axis=0).round().astype(int)
+    return out
 
 
 def player_info():
@@ -163,6 +214,8 @@ def main():
 
     for key, g in tables.items():
         out = info.merge(g, on="player_id").sort_values("shrunk_rate", ascending=False)
+        if key == "duels_vs_expected":
+            out = add_rank_ranges(out)
         out.to_csv(RES / f"rank_{key}.csv", index=False)
     return tables, info
 

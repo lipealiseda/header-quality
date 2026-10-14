@@ -6,11 +6,26 @@
 
 <div class="col">
   <h2>How to read the table</h2>
-  <p><strong>Above expected</strong> is extra duels won per 100, after shrinking toward average. The model behind it already knows both players' heights, positions, the delivery and the location, so a high number means a player wins more than his size and situation explain. The <strong>likely range</strong> shows where his true number probably sits, with an 80% chance. When the whole range is on one side of the middle line, the player is clearly above or below average.</p>
-  <p>Most duels come from the 2015/16 season, so clubs and heights reflect that time.</p>
+  <p><strong>Above expected</strong> is extra duels won per 100, after shrinking toward average. The model behind it already knows both players' heights, positions, the delivery and the location, so a high number means a player wins more than his size and situation explain.</p>
+  <p>The <strong>95% range</strong> shows where his true number probably sits. It comes from the same statistical model as the shrinkage. When the whole range sits on one side of the middle line, the player is clearly above or below average. Of 228 defenders, 18 are clearly above and 8 clearly below. The rest cannot be told apart from average with this much data.</p>
+  <p>The <strong>rank range</strong> answers a related question. If you replayed the season many times with each player's true ability drawn from his range, where would he finish? The top defender, Konstantinos Manolas, could be anywhere from 1st to 32nd. Players close together in the table usually cannot be ordered with any confidence.</p>
+  <p class="small">The ranges treat the spread of skill between players as known, so they are a little too narrow for players near the 100 duel minimum. Most duels come from the 2015/16 season, so clubs reflect that time.</p>
+
+  <h2>Compare two players</h2>
+  <div class="compare">
+    <label>First player
+      <input id="cmp-a" list="players" type="text" autocomplete="off" placeholder="for example Manolas" value="Konstantinos Manolas (AS Roma)">
+    </label>
+    <label>Second player
+      <input id="cmp-b" list="players" type="text" autocomplete="off" placeholder="for example Lovren" value="Dejan Lovren (Liverpool)">
+    </label>
+    <datalist id="players"></datalist>
+    <p id="cmp-out" class="cmp-out" aria-live="polite"></p>
+  </div>
 </div>
 
 <div class="wide">
+  <h2>All players</h2>
   <div class="controls">
     <label>Search a player or club
       <input id="q" type="search" placeholder="for example Manolas or Roma" autocomplete="off">
@@ -35,10 +50,10 @@
           <th scope="col"><button data-k="pos">Position</button></th>
           <th class="num" scope="col"><button data-k="h">Height (cm)</button></th>
           <th class="num" scope="col"><button data-k="n">Duels</button></th>
-          <th class="num" scope="col"><button data-k="won">Won</button></th>
-          <th class="num" scope="col"><button data-k="exp">Expected</button></th>
+          <th class="num" scope="col"><button data-k="won">Won of expected</button></th>
           <th class="num" scope="col" aria-sort="descending"><button data-k="above">Above expected, per 100</button></th>
-          <th scope="col" class="bar-cell">Likely range</th>
+          <th scope="col" class="bar-cell">95% range</th>
+          <th class="num" scope="col" id="rr-head">95% rank range</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -50,5 +65,5 @@
 
 <div class="col">
   <h2>Other rankings</h2>
-  <p>Rankings for headers on target, headed goals minus xG and clearance quality are in the <a href="https://github.com/lipealiseda/header-quality/blob/main/results/stage4_rankings.md">full results on GitHub</a>. They are kept off this page on purpose, because chapter 4 showed they are mostly luck at current sample sizes.</p>
+  <p>Rankings for headers on target, headed goals minus xG and clearance quality are in the <a href="https://github.com/lipealiseda/header-quality/blob/main/results/stage4_rankings.md">full results on GitHub</a>. They are kept off this page on purpose, because chapter 4 showed they carry little reliable signal at current sample sizes.</p>
 </div>

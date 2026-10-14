@@ -112,8 +112,13 @@ def main():
         rows.append({
             "name": x.name, "pos": POS[x.pos_group], "club": x.main_club if isinstance(x.main_club, str) else "",
             "h": int(x.height_cm), "n": int(x.n), "won": int(x.actual), "exp": round(float(x.expected), 1),
-            "above": round(float(x.shrunk_rate) * 100, 1),
-            "lo": round(float(x.lo80) * 100, 1), "hi": round(float(x.hi80) * 100, 1),
+            "above": round(float(x.shrunk_rate) * 100, 1),       # shown, same rounding as the charts
+            "mu": round(float(x.shrunk_rate) * 100, 3),          # unrounded, for the comparison box
+            "sd": round(float(x.post_sd) * 100, 3),
+            "lo": round(float(x.lo95) * 100, 1), "hi": round(float(x.hi95) * 100, 1),
+            # 95% rank range within each position group the page can filter by
+            "rr": {g: [int(getattr(x, f"rank_{g}_lo")), int(getattr(x, f"rank_{g}_hi"))]
+                   for g in ("def", "fwd", "mid", "all") if getattr(x, f"rank_{g}_lo") == getattr(x, f"rank_{g}_lo")},
         })
     js = "// built by src/build_site.py from results/rank_duels_vs_expected.csv\nwindow.DUELS = " + \
          json.dumps(rows, ensure_ascii=False, separators=(",", ":")) + ";\n"

@@ -196,10 +196,11 @@ def a4_finishing():
     rel = pd.read_csv(RES / "metric_reliability.csv").set_index("metric")
     q = g[g["qualified"]].copy()
     q["gmx"] = q["actual"] - q["expected"]
-    fig = frame("Headed finishing looks like luck",
-                f"Goals vs expected goals on headers for the {len(q)} players with 25+ headed shots. Splitting each\n"
-                f"player's matches in two, one half predicts the other with reliability "
-                f"{rel.loc['goals_vs_xg', 'full_length_reliability']:.2f} (0 = pure luck, 1 = pure skill).", SRC)
+    rg = rel.loc["goals_vs_xg"]
+    fig = frame("Headed finishing shows no clear skill signal",
+                f"Goals vs expected goals on headers for the {len(q)} players with 25+ headed shots. Reliability is about\n"
+                f"zero (95% interval below 0 to {rg['rel_ci_hi']:.2f}), so with this few players moderate skill cannot be ruled out.",
+                SRC)
     ax = fig.add_axes([0.09, 0.13, 0.62, 0.70])
     m = max(q["expected"].max(), q["actual"].max()) + 1
     xs = np.linspace(0, m, 50)
@@ -292,24 +293,27 @@ def d3_defenders():
     top, bot = q.nlargest(10, "shrunk_rate"), q.nsmallest(5, "shrunk_rate").iloc[::-1]
     t = pd.concat([bot, top.iloc[::-1]])
     fig = frame("Defenders who win more headers than their height says",
-                f"Aerial duels won above or below what the model expects, per 100 duels, for {len(q)} defenders with\n"
-                "100+ duels. The model already knows both players' heights, positions, the delivery and the location.",
+                f"Aerial duels won above or below expected per 100, for {len(q)} defenders with 100+ duels. Lines are\n"
+                f"95% ranges. The rank range shows where each could really sit among all {len(q)}.",
                 SRC, size=(9, 7))
-    ax = fig.add_axes([0.42, 0.13, 0.53, 0.70])
+    ax = fig.add_axes([0.42, 0.13, 0.46, 0.68])
     y = np.r_[np.arange(5), np.arange(10) + 6]
     for yi, row in zip(y, t.itertuples()):
         c = BLUE if row.shrunk_rate > 0 else ORANGE
-        ax.hlines(yi, row.lo80 * 100, row.hi80 * 100, color=c, lw=2.2, alpha=0.4)
+        ax.hlines(yi, row.lo95 * 100, row.hi95 * 100, color=c, lw=2.2, alpha=0.4)
         ax.scatter(row.shrunk_rate * 100, yi, s=55, color=c, zorder=3, edgecolors=SURFACE, linewidths=1.5)
-        ax.text(row.hi80 * 100 + 0.6 if row.shrunk_rate > 0 else row.lo80 * 100 - 0.6, yi,
-                f"{row.shrunk_rate * 100:+.1f}", va="center", ha="left" if row.shrunk_rate > 0 else "right",
-                fontsize=8.5, color=INK2)
+        ax.text(1.03, yi, f"{int(row.rank_def_lo)} to {int(row.rank_def_hi)}", va="center", ha="left",
+                fontsize=8.5, color=INK2, transform=ax.get_yaxis_transform())
+        ax.text(row.hi95 * 100 + 0.6, yi, f"{row.shrunk_rate * 100:+.1f}", va="center", ha="left",
+                fontsize=8.5, color=INK2, bbox=dict(fc=SURFACE, ec="none", pad=0.6), zorder=4)
     ax.set_yticks(y)
     ax.set_yticklabels([f"{row.name}  ({row.main_club}, {row.height_cm:.0f} cm)" for row in t.itertuples()],
                        fontsize=8.8, color=INK)
     ax.axvline(0, color=MUTED, lw=1)
     ax.axhline(5, color=GRID, lw=1)
-    ax.set_xlabel("Duels won above expected per 100 (shrunk, line = 80% range)")
+    ax.set_xlabel("Duels won above expected per 100 (shrunk, line = 95% range)")
+    ax.text(1.03, 16.3, "95% rank\nrange", ha="left", va="center", fontsize=8.5, color=INK2, fontweight="bold",
+            transform=ax.get_yaxis_transform())
     ax.spines["left"].set_visible(False)
     ax.set_xlim(-24, 24)
     grid_x(ax)
@@ -327,24 +331,93 @@ def d4_reliability():
             "next_ball_vs_expected": "Defense", "goals_vs_xg": "Attack"}
     rel = rel.sort_values("full_length_reliability")
     fig = frame("Only one header skill clearly repeats",
-                "How well a player's number in one half of his matches predicts the other half (split by match,\n"
-                "corrected to full sample). 0 means pure luck, 1 means pure skill.", SRC, size=(9, 5.2))
+                "Reliability of each metric, the average over 200 random match splits, corrected to the full sample.\n"
+                "Lines are 95% intervals. 0 means pure luck, 1 means pure skill.", SRC, size=(9, 5.4))
     ax = fig.add_axes([0.40, 0.17, 0.54, 0.6])
     y = np.arange(len(rel))
-    colors = [BLUE if m == "duels_vs_expected" else GRAY for m in rel["metric"]]
-    ax.barh(y, rel["full_length_reliability"].clip(lower=0), color=colors, height=0.6)
     for i, r in enumerate(rel.itertuples()):
-        ax.text(max(r.full_length_reliability, 0) + 0.015, i, f"{r.full_length_reliability:.2f}", va="center",
-                fontsize=9, color=INK)
+        c = BLUE if r.metric == "duels_vs_expected" else MUTED
+        lo, hi, est = max(r.rel_ci_lo, 0), max(r.rel_ci_hi, 0), max(r.full_length_reliability, 0)
+        ax.hlines(i, lo, hi, color=c, lw=3, alpha=0.45 if c == BLUE else 0.35)
+        ax.scatter(est, i, s=70, color=c, zorder=3, edgecolors=SURFACE, linewidths=1.5)
+        lo_txt = "below 0" if r.rel_ci_lo < 0 else f"{r.rel_ci_lo:.2f}"
+        ax.text(hi + 0.02, i, f"{r.full_length_reliability:.2f}  ({lo_txt} to {r.rel_ci_hi:.2f})", va="center",
+                fontsize=8.8, color=INK)
     ax.set_yticks(y)
     ax.set_yticklabels([f"{names[m]}\n{side[m]}, {int(p)} players" for m, p in zip(rel["metric"], rel["players"])],
                        fontsize=9, color=INK, linespacing=1.3)
-    ax.set_xlim(0, 1)
-    ax.axvline(0.5, color=MUTED, lw=1)
-    ax.text(0.51, len(rel) - 0.45, "repeatable", fontsize=8.5, color=MUTED)
+    ax.set_xlim(-0.04, 1.08)
+    ax.set_ylim(-0.6, len(rel) - 0.4)
+    ax.axvline(0.5, color=GRID, lw=1.2)
+    ax.text(0.51, len(rel) - 0.55, "repeatable", fontsize=8.5, color=MUTED)
+    ax.set_xticks([0, 0.25, 0.5, 0.75, 1])
     ax.spines["left"].set_visible(False)
     grid_x(ax)
     save(fig, "d4_which_metrics_are_skill")
+
+
+def m1_xg_calibration():
+    b = pd.read_csv(RES / "calibration_bins.csv")
+    cs = pd.read_csv(RES / "calibration_summary.csv").set_index(["target", "model"])
+    fig = frame("Header xG predictions match reality",
+                "Headed shots grouped into ten equal bins by predicted chance of a goal. Each dot compares the average\n"
+                "prediction with the share that went in. Lines are 95% intervals from resampling matches.", SRC)
+    ax = fig.add_axes([0.09, 0.13, 0.60, 0.70])
+    ax.plot([0, 0.45], [0, 0.45], color=MUTED, lw=1)
+    for model, c, label, off in (("logistic", BLUE, "This project's xG", -0.002), ("statsbomb", ORANGE, "StatsBomb xG", 0.002)):
+        t = b[(b.target == "xg") & (b.model == model)]
+        ax.vlines(t["predicted"] + off, t["lo"], t["hi"], color=c, lw=2, alpha=0.4)
+        ax.scatter(t["predicted"] + off, t["observed"], s=46, color=c, zorder=3, edgecolors=SURFACE, linewidths=1.3,
+                   label=label)
+    ax.set_xlim(0, 0.42)
+    ax.set_ylim(0, 0.42)
+    ax.set_aspect("equal")
+    ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1, decimals=0))
+    ax.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1, decimals=0))
+    ax.set_xlabel("Predicted chance of a goal (bin average)")
+    ax.set_ylabel("Share of headers scored")
+    ax.text(0.33, 0.36, "perfect calibration", rotation=45, fontsize=8.5, color=MUTED, ha="center", va="bottom",
+            rotation_mode="anchor")
+    grid_y(ax)
+    ax.legend(loc="upper left", frameon=False, fontsize=9)
+    ours, sb = cs.loc[("xg", "logistic")], cs.loc[("xg", "statsbomb")]
+    fig.text(0.72, 0.78, "Calibration slope", fontsize=9.5, fontweight="bold", color=INK, va="top")
+    fig.text(0.72, 0.73, f"This project  {ours.slope:.2f}\n   95%  {ours.slope_lo:.2f} to {ours.slope_hi:.2f}\n"
+             f"StatsBomb  {sb.slope:.2f}\n   95%  {sb.slope_lo:.2f} to {sb.slope_hi:.2f}", fontsize=9, color=INK2,
+             va="top", linespacing=1.5)
+    fig.text(0.72, 0.53, "1 is ideal. Below 1 means\npredictions are a bit too\nextreme, above 1 a bit too\ncautious.",
+             fontsize=8.5, color=MUTED, va="top", linespacing=1.35)
+    fig.text(0.72, 0.36, "Average prediction", fontsize=9.5, fontweight="bold", color=INK, va="top")
+    fig.text(0.72, 0.31, f"This project  {ours.mean_pred:.3f}\nStatsBomb  {sb.mean_pred:.3f}\n"
+             f"Actual goal rate  {ours.mean_obs:.3f}", fontsize=9, color=INK2, va="top", linespacing=1.5)
+    save(fig, "m1_xg_calibration")
+
+
+def calibration_grid():
+    """All five models on one sheet, saved in results/ for the repository."""
+    b = pd.read_csv(RES / "calibration_bins.csv")
+    names = {"xg": "Header is a goal", "xot": "Header on target", "duel": "Defender wins the duel",
+             "shot10": "Opponent shot within 10 s", "keep": "Defending team keeps the ball"}
+    fig = frame("Calibration of every model", "Predicted against observed rate in ten equal bins, with 95% match "
+                "bootstrap intervals. Blue is logistic regression, orange is gradient boosting.", SRC, size=(12, 7.6))
+    for i, (t, label) in enumerate(names.items()):
+        ax = fig.add_axes([0.06 + (i % 3) * 0.32, 0.50 - (i // 3) * 0.39, 0.25, 0.30])
+        sub = b[b.target == t]
+        top = max(sub["hi"].max(), sub["predicted"].max()) * 1.05
+        lo_lim = 0 if top < 0.6 else min(sub["lo"].min(), sub["predicted"].min()) * 0.95
+        ax.plot([lo_lim, top], [lo_lim, top], color=MUTED, lw=1)
+        for model, c in (("logistic", BLUE), ("boosting", ORANGE)):
+            m = sub[sub.model == model]
+            ax.vlines(m["predicted"], m["lo"], m["hi"], color=c, lw=1.6, alpha=0.4)
+            ax.scatter(m["predicted"], m["observed"], s=18, color=c, zorder=3)
+        ax.set_xlim(lo_lim, top)
+        ax.set_ylim(lo_lim, top)
+        ax.set_title(label, fontsize=10, loc="left", color=INK)
+        ax.tick_params(labelsize=8)
+        grid_y(ax)
+    fig.savefig(RES / "calibration_all_models.png", dpi=120)
+    plt.close(fig)
+    print("saved calibration_all_models")
 
 
 def main():
@@ -356,6 +429,8 @@ def main():
     d2_danger_map()
     d3_defenders()
     d4_reliability()
+    m1_xg_calibration()
+    calibration_grid()
 
 
 if __name__ == "__main__":

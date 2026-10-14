@@ -8,11 +8,12 @@ How good are players with their heads, in attack and in defense, once you accoun
 
 ## Main findings
 
-- Winning aerial duels is a repeatable skill. Split-half reliability is 0.67 even after the model accounts for both players' heights, positions, the delivery and the location.
+- Winning aerial duels is a repeatable skill. Split-half reliability is 0.67 (95% interval 0.59 to 0.74, over 200 random match splits) even after the model accounts for both players' heights, positions, the delivery and the location.
 - Height is the third biggest driver of who wins a duel. A defender 10+ cm taller than his man wins about 3 in 4, one 10+ cm shorter about 4 in 10.
 - Height does not help once the header is won. Taller players do not beat their headed xG.
-- Headed goals minus xG cannot be told apart from luck in this data (reliability 0.02).
-- The header xG model (logistic regression, AUC 0.743) is close to StatsBomb's own xG on the same shots (AUC 0.749).
+- Headed goals minus xG shows no sign of being a skill (reliability about 0), but with only 47 qualified players the 95% interval reaches 0.53, so moderate finishing skill cannot be ruled out either.
+- The header xG model (logistic regression, AUC 0.743, 95% interval 0.728 to 0.758) cannot be told apart from StatsBomb's own xG on the same shots (difference -0.006, interval -0.014 to +0.003, paired match bootstrap p = 0.20), and it is better calibrated there.
+- Player rankings come with honest uncertainty. The top defender in the air, Konstantinos Manolas, has a 95% rank range of 1 to 32 among 228 defenders. Only 18 defenders are clearly above average and 8 clearly below.
 
 ## Charts
 
@@ -44,17 +45,19 @@ Column definitions are in [docs/data_dictionary.md](docs/data_dictionary.md).
 
 ## Models
 
-Every model is fit twice, as a logistic regression and as a gradient boosting model (scikit-learn `HistGradientBoostingClassifier`), and scored with 5 fold cross validation grouped by match.
+Every model is fit twice, as a logistic regression and as a gradient boosting model (scikit-learn `HistGradientBoostingClassifier`), and scored with 5 fold cross validation grouped by match. Intervals are 95% match bootstrap intervals (1,000 resamples of whole matches, recomputed on the out of fold predictions).
 
-| Target | Rows | Best model | AUC | Log loss skill vs base rate |
-|---|---|---|---|---|
-| Headed shot is a goal (xG) | 10,327 | Logistic | 0.743 | 11.8% |
-| Headed shot is on target | 10,327 | Logistic | 0.628 | 3.6% |
-| Defending player wins the aerial duel | 93,684 | Boosting | 0.667 | 6.5% |
-| Opponent shoots within 10 s of a defensive header | 75,968 | Boosting | 0.739 | 10.6% |
-| Defending team wins the next ball | 68,844 | Boosting | 0.694 | 11.1% |
+| Target | Rows | Best model | AUC (95%) | Log loss skill (95%) | Brier | Calibration slope (95%) |
+|---|---|---|---|---|---|---|
+| Headed shot is a goal (xG) | 10,327 | Logistic | 0.743 (0.728 to 0.758) | 11.8% (10.1% to 13.3%) | 0.0856 | 0.94 (0.88 to 1.01) |
+| Headed shot is on target | 10,327 | Logistic | 0.628 (0.617 to 0.640) | 3.6% (2.9% to 4.3%) | 0.2045 | 0.89 (0.82 to 0.97) |
+| Defending player wins the aerial duel | 93,684 | Boosting | 0.667 (0.663 to 0.670) | 6.5% (6.2% to 6.7%) | 0.2220 | 1.04 (1.01 to 1.06) |
+| Opponent shoots within 10 s of a defensive header | 75,968 | Boosting | 0.739 (0.733 to 0.745) | 10.6% (10.1% to 11.1%) | 0.0729 | 1.03 (1.00 to 1.07) |
+| Defending team wins the next ball | 68,844 | Boosting | 0.694 (0.689 to 0.698) | 11.1% (10.7% to 11.5%) | 0.2134 | 1.05 (1.03 to 1.08) |
 
-Full results, including the effect of adding height, are in [results/stage3_summary.md](results/stage3_summary.md).
+Every model's calibration curve is in [results/calibration_all_models.png](results/calibration_all_models.png). Header xG is compared with StatsBomb's xG on the same shots with a paired match bootstrap and DeLong's test. Full results, including the effect of adding height, are in [results/stage3_summary.md](results/stage3_summary.md).
+
+![Header xG calibration](figures/m1_xg_calibration.png)
 
 Two choices worth knowing about.
 
@@ -71,7 +74,17 @@ EA FC ratings (FIFA 15 to 22) were matched to players as rough proxies for physi
 
 ## Rankings
 
-Players are compared with out of fold predictions, so a player is never judged by a model that saw his own headers. Above-expected numbers are shrunk toward zero with empirical Bayes, so small samples are pulled toward average. Each metric's reliability is measured by splitting every player's matches into two random halves and correlating the halves across players.
+Players are compared with out of fold predictions, so a player is never judged by a model that saw his own headers. Above-expected numbers are shrunk toward zero with empirical Bayes, so small samples are pulled toward average, and each player gets an 80% and 95% posterior interval from the same normal model. For aerial duels, 4,000 posterior simulations give every player a 95% rank range within his position group.
+
+Each metric's reliability comes from 200 random splits of the matches into two halves. The half sample correlation across players is corrected to the full sample with Spearman Brown. Reported are the mean, the spread from the random split alone, and a 95% interval that also resamples players.
+
+| Metric | Players | Full sample reliability | 95% interval |
+|---|---|---|---|
+| Aerial duels won vs expected | 512 | 0.67 | 0.59 to 0.74 |
+| Headers on target vs expected | 47 | 0.21 | below 0 to 0.60 |
+| Opponent shots prevented after clearing | 224 | 0.16 | below 0 to 0.38 |
+| Next ball won after clearing | 192 | 0.03 | below 0 to 0.34 |
+| Headed goals minus xG | 47 | about 0 | below 0 to 0.53 |
 
 Full tables are in [results/stage4_rankings.md](results/stage4_rankings.md) and `results/rank_*.csv`.
 
@@ -94,6 +107,7 @@ python src/models_attack.py           # Stage 3
 python src/models_defense.py
 HQ_NO_PHYSICAL=1 python src/models_attack.py    # same models without height, for comparison
 HQ_NO_PHYSICAL=1 python src/models_defense.py
+python src/uncertainty.py             # match bootstrap, calibration, xG vs StatsBomb (about 15 minutes)
 python src/stage3_report.py
 python src/rankings.py                # Stage 4
 python src/stage4_report.py

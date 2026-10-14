@@ -58,7 +58,7 @@
       </tbody>
     </table>
   </div>
-  <p>Adding height lifted the model's accuracy (AUC) from 0.643 to 0.667. That sounds small, but duels are close to a coin flip by nature, so any reliable edge matters. The model still leaves plenty unexplained, and part of that gap is individual skill, which chapter 4 measures.</p>
+  <p>Adding height lifted the model's accuracy (AUC) from 0.643 to 0.667, and with 93,684 duels that gain is far larger than the uncertainty (the 95% interval with height is 0.663 to 0.670). That sounds small, but duels are close to a coin flip by nature, so any reliable edge matters. The model still leaves plenty unexplained, and part of that gap is individual skill, which chapter 4 measures.</p>
 
   <h2>Where you clear it matters most</h2>
   <p>A good defensive header does more than win the ball. It has to stop the opponent from getting a shot soon after. For 75,968 defensive headers, the model looks at whether the other team shot within 10 seconds.</p>
@@ -79,8 +79,8 @@
 </div>
 
 <figure>
-  <img src="img/d3_best_defenders_in_the_air.png" alt="Dot chart of the top 10 and bottom 5 defenders in aerial duels won above expected per 100 duels. Konstantinos Manolas leads at plus 12.3. Daley Blind is lowest at minus 14.4." width="1350" height="1050" loading="lazy">
-  <figcaption>Each line shows the range the player's true number probably sits in. Search every player on the <a href="rankings.html">rankings page</a>.</figcaption>
+  <img src="img/d3_best_defenders_in_the_air.png" alt="Dot chart of the top 10 and bottom 5 defenders in aerial duels won above expected per 100 duels, with 95% ranges and rank ranges. Konstantinos Manolas leads at plus 12.3, rank range 1 to 32. Daley Blind is lowest at minus 14.4, rank range 218 to 228." width="1350" height="1050" loading="lazy">
+  <figcaption>Each line is a 95% range for the player's true number, and the rank range on the right shows where he could really sit among all 228 defenders. Manolas is first, but anywhere from 1st to 32nd is consistent with the data. Search every player on the <a href="rankings.html">rankings page</a>.</figcaption>
 </figure>
 
 <nav class="pager" aria-label="Chapters"><a class="prev" href="attack.html"><span class="dir">Previous</span><span class="t">Attacking headers</span></a><a class="next" href="skill.html"><span class="dir">Next</span><span class="t">Skill or luck</span></a></nav>
