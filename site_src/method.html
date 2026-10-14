@@ -10,19 +10,19 @@
   <p>Every number below has a 95% interval from a match bootstrap. The matches are resampled with replacement 1,000 times and each score is worked out again. Whole matches are resampled because headers in the same match are related. The predictions stay fixed in this process, so the intervals cover which matches happen to be in the data, not the effect of refitting the model.</p>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Question</th><th class="num">Rows</th><th>Better model</th><th class="num">AUC (95% interval)</th><th class="num">Brier score</th><th class="num">Calibration slope</th></tr></thead>
+      <thead><tr><th>Question</th><th class="num">Rows</th><th>Better model</th><th class="num">AUC (95% interval)</th><th class="num">Brier score</th><th class="num">Calibration slope (95% interval)</th></tr></thead>
       <tbody>
-        <tr><td>Is the headed shot a goal?</td><td class="num">10,327</td><td>Logistic</td><td class="num">0.743 (0.728 to 0.758)</td><td class="num">0.086</td><td class="num">0.94</td></tr>
-        <tr><td>Is it on target?</td><td class="num">10,327</td><td>Logistic</td><td class="num">0.628 (0.617 to 0.640)</td><td class="num">0.205</td><td class="num">0.89</td></tr>
-        <tr><td>Does the defending player win the aerial duel?</td><td class="num">93,684</td><td>Boosting</td><td class="num">0.667 (0.663 to 0.670)</td><td class="num">0.222</td><td class="num">1.04</td></tr>
-        <tr><td>Does the opponent shoot within 10 seconds of a defensive header?</td><td class="num">75,968</td><td>Boosting</td><td class="num">0.739 (0.733 to 0.745)</td><td class="num">0.073</td><td class="num">1.03</td></tr>
-        <tr><td>Does the defending team win the next ball?</td><td class="num">68,844</td><td>Boosting</td><td class="num">0.694 (0.689 to 0.698)</td><td class="num">0.213</td><td class="num">1.05</td></tr>
+        <tr><td>Is the headed shot a goal?</td><td class="num">10,327</td><td>Logistic</td><td class="num">0.743 (0.728 to 0.758)</td><td class="num">0.086</td><td class="num">0.94 (0.88 to 1.01)</td></tr>
+        <tr><td>Is it on target?</td><td class="num">10,327</td><td>Logistic</td><td class="num">0.628 (0.617 to 0.640)</td><td class="num">0.205</td><td class="num">0.89 (0.82 to 0.97)</td></tr>
+        <tr><td>Does the defending player win the aerial duel?</td><td class="num">93,684</td><td>Boosting</td><td class="num">0.667 (0.663 to 0.670)</td><td class="num">0.222</td><td class="num">1.04 (1.01 to 1.06)</td></tr>
+        <tr><td>Does the opponent shoot within 10 seconds of a defensive header?</td><td class="num">75,968</td><td>Boosting</td><td class="num">0.739 (0.733 to 0.745)</td><td class="num">0.073</td><td class="num">1.03 (1.00 to 1.07)</td></tr>
+        <tr><td>Does the defending team win the next ball?</td><td class="num">68,844</td><td>Boosting</td><td class="num">0.694 (0.689 to 0.698)</td><td class="num">0.213</td><td class="num">1.05 (1.03 to 1.08)</td></tr>
       </tbody>
     </table>
   </div>
   <p class="small">AUC is the chance the model rates a random success above a random failure, where 0.5 is a coin flip and 1 is perfect. The Brier score is the average squared gap between prediction and outcome, so lower is better. A calibration slope of 1 means predictions are as spread out as they should be, below 1 means a little too extreme and above 1 a little too cautious. Full tables, including log loss skill with intervals, are in the <a href="https://github.com/lipealiseda/header-quality/blob/main/results/stage3_summary.md">results on GitHub</a>.</p>
 
-  <h2>Are the probabilities honest?</h2>
+  <h2 id="calibration">Are the probabilities honest?</h2>
   <p>A model can rank shots well and still give the wrong numbers, for example by calling every header a 20% chance when the real rate is 10%. Calibration checks this. Headers are grouped into ten bins by their predicted chance, and each bin's average prediction is compared with how often those headers actually went in.</p>
 </div>
 
@@ -32,7 +32,11 @@
 </figure>
 
 <div class="col">
-  <h2>How the xG compares with StatsBomb's</h2>
+  <p>Three slopes have intervals that miss 1. The on target model is slightly overconfident (0.89), and the boosting models for winning the duel (1.04) and keeping the ball (1.05) are slightly too cautious. All three gaps are small.</p>
+</div>
+
+<div class="col">
+  <h2 id="vs-statsbomb">How the xG compares with StatsBomb's</h2>
   <p>StatsBomb publishes its own professional xG for every shot, so the header model can be compared with it on exactly the same 10,327 headers. The comparison is paired, meaning both models are scored on the same resampled matches each time, which removes the noise that comes from the matches themselves.</p>
   <div class="table-wrap">
     <table>
@@ -51,7 +55,7 @@
   <p>One detail changes the answer. Inputs that carry overlapping information have to be shuffled together. The duel model sees both players' heights and the difference between them, and shuffling only the difference lets the model fall back on the raw heights. Measured that way, height difference ranks third with 17%. Shuffled as a group, height ranks first with 30% (range 26% to 35%), and it came first in all 15 repeats across the five folds. A second check refits the model with every height input removed. Accuracy falls from AUC 0.667 to 0.643, which is what height adds that nothing else can stand in for.</p>
   <p class="small">The attack page's factor chart still uses single inputs on one held out fold, because its inputs overlap much less. The full grouped table is in <a href="https://github.com/lipealiseda/header-quality/blob/main/results/duel_importance.md">duel_importance.md</a>.</p>
 
-  <h2>A second way to rank players</h2>
+  <h2 id="mixed">A second way to rank players</h2>
   <p>The duel rankings use empirical Bayes. Each player's wins minus expected wins are added up, then pulled toward average depending on how much data he has. A standard alternative is a mixed effects model, a logistic regression that gives every player his own adjustment and estimates all of them together. Here each duel's log odds are the duel model's prediction plus the defender's adjustment minus the attacker's, with the adjustments assumed to follow a normal distribution.</p>
   <p>The practical difference is the opponent. Empirical Bayes treats every opponent as average. The mixed model knows that beating a player who is himself strong in the air means more than beating a weak one. The statsmodels library could not be installed in this environment, so the model was fit directly with the Laplace approximation, the same method R's lme4 package uses by default, and checked first on simulated data with known answers (it recovered a true spread of 0.35 as 0.33, and its player estimates correlated 0.92 with the truth).</p>
 </div>
@@ -63,7 +67,7 @@
 <div class="col">
   <p>The two methods agree closely. The rank correlation is 0.988 (95% interval 0.985 to 0.990), 0.976 among defenders and 0.993 among forwards. Nine of the top ten defenders and all of the top ten forwards are the same. Players who move up in the mixed model are the ones who faced stronger opponents in the air (correlation 0.86 between moving up and opponent strength), as the model intends. Chris Smalling, for example, rises from 259th to 166th. The mixed model also marks more players as clearly above average, 91 against 64, because part of the noise is assigned to opponents, but every player the main ranking marks as clearly above average is marked by both.</p>
 
-  <h2>Checking the data</h2>
+  <h2 id="data-checks">Checking the data</h2>
   <p><strong>Why 95,942 duels became 93,684 model rows.</strong> In 2,258 duels (2.4%) no pass came in the 6 seconds before, for example a loose ball or a header straight after another header. Without a delivering team there is no way to say which player was defending, so these duels cannot enter the duel model.</p>
   <p><strong>The Barcelona question.</strong> Some club seasons in the open data follow one team in every match, mostly Barcelona. Barcelona matches are 20% of all matches but only 13% of aerial duels and 16% of headed shots, since they average 23 aerial duels per match against 39 elsewhere. Counting every one team season (Barcelona, Paris Saint-Germain, Leverkusen, Arsenal 2003/04 and a few others) gives 26% of matches and 18% of duels.</p>
   <p>That is enough to matter, so the duel model was refit without those seasons and the rankings were rebuilt from scratch.</p>

@@ -62,12 +62,24 @@
 </figure>
 
 <div class="col">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Metric</th><th class="num">Players</th><th class="num">Reliability</th><th class="num">95% interval</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td>Aerial duels won above expected</td><td class="num">512</td><td class="num">0.67</td><td class="num">0.59 to 0.74</td></tr>
+        <tr><td>Headers on target above expected</td><td class="num">47</td><td class="num">0.21</td><td class="num">below 0 to 0.60</td></tr>
+        <tr><td>Opponent shots prevented after clearing</td><td class="num">224</td><td class="num">0.16</td><td class="num">below 0 to 0.38</td></tr>
+        <tr><td>Next ball won after clearing</td><td class="num">192</td><td class="num">0.03</td><td class="num">below 0 to 0.34</td></tr>
+        <tr><td>Headed goals minus xG</td><td class="num">47</td><td class="num">about 0</td><td class="num">below 0 to 0.53</td></tr>
+      </tbody>
+    </table>
+  </div>
   <p>Only one metric clears the bar. Aerial duel ability repeats strongly, with a 95% interval of 0.59 to 0.74, even though the model behind it already knows both players' heights. Its lower end is above every other metric's estimate.</p>
   <p>The other four show no clear signal, but the intervals tell an important second story. Headed finishing has a reliability of about zero, yet its interval reaches 0.53, because only 47 players have 25 or more headed shots. So the data finds no evidence that some players finish headers better than others, but it cannot rule out a moderate amount of skill either. Heading accuracy is in the same position, with an interval up to 0.60.</p>
 
   <h2>Is it the player or his team?</h2>
   <p>A team that defends crosses well could make all its defenders look good. To check, each player's duel number was compared with the number for his teammates in the same matches. The correlation is only 0.10, and the spread between teams is about a third of the spread between players. Aerial duel skill looks individual.</p>
-  <p>The ranking also survives two harder checks described on the <a href="method.html">Method page</a>. A mixed effects model, which also adjusts for the strength of each opponent, ranks the players almost identically (rank correlation 0.988). And dropping the seasons that follow a single team, mostly Barcelona, leaves the reliability at 0.67.</p>
+  <p>The ranking also survives two harder checks on the Method page. A <a href="method.html#mixed">mixed effects model</a>, which also adjusts for the strength of each opponent, ranks the players almost identically (rank correlation 0.988). And <a href="method.html#data-checks">dropping the seasons that follow a single team</a>, mostly Barcelona, leaves the reliability at 0.67.</p>
 
   <div class="key"><p>For scouting in the air, use aerial duels won above expectation. Do not trust headed goals above xG yet. Free data has too few headers per player to tell finishing skill from luck in either direction.</p></div>
 </div>
