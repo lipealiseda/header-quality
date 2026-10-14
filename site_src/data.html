@@ -1,0 +1,64 @@
+<div class="page-title">
+  <p class="chapter-no">Chapter 1</p>
+  <h1>What free data can measure</h1>
+  <p class="lede">Before building any model, every factor on the wish list was checked against what free data actually contains. Some can be measured directly, some only through a stand in, and some not at all.</p>
+</div>
+
+<div class="col">
+  <h2>Where the data comes from</h2>
+  <p><strong>StatsBomb open data</strong> is the backbone. It logs every on ball action in 2,651 men's matches, including which body part touched the ball. For every shot it also records a freeze frame with the position of every visible player and the goalkeeper. A smaller set of 351 men's matches has 360 frames, which show nearby players for every event.</p>
+  <p><strong>Transfermarkt</strong> supplies player height, through a free dataset that is updated every season. StatsBomb has no physical data at all, so this join is what makes height part of the story.</p>
+  <p><strong>Metrica Sports</strong> shares two anonymous games of tracking data, with every player's position 25 times a second. It is far too small for the main models, but it allows one test of running speed before a jump.</p>
+  <p><strong>EA FC ratings</strong> from the FIFA video games give jumping, strength and speed scores. They are opinions from EA's scouts, so they are used only in one side test and never inside the main models.</p>
+
+  <h2>What each factor needs</h2>
+  <p>The labels mean the factor is measured directly, approximated with something close to it, or not possible with free data.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Factor</th><th>Status</th><th>How</th></tr></thead>
+      <tbody>
+        <tr><td>Player height</td><td><span class="tag yes">Measured</span></td><td>Transfermarkt, joined by name, nationality, birth year and club</td></tr>
+        <tr><td>Opponent's height in the duel</td><td><span class="tag yes">Measured</span></td><td>StatsBomb links the loser of every aerial duel to the winner, so both players are known</td></tr>
+        <tr><td>Distance and angle to goal</td><td><span class="tag yes">Measured</span></td><td>Event location</td></tr>
+        <tr><td>Space to the nearest defender</td><td><span class="tag yes">Measured</span></td><td>Shot freeze frame</td></tr>
+        <tr><td>Defenders between the ball and the goal</td><td><span class="tag yes">Measured</span></td><td>Players inside the triangle from the ball to both posts</td></tr>
+        <tr><td>Goalkeeper position</td><td><span class="tag yes">Measured</span></td><td>Shot freeze frame, present for almost every headed shot (5 of 10,327 are missing)</td></tr>
+        <tr><td>Type and origin of the delivery</td><td><span class="tag yes">Measured</span></td><td>The pass before the header, with corner, free kick, cross, inswinger and outswinger flags</td></tr>
+        <tr><td>Speed of the cross</td><td><span class="tag proxy">Proxy</span></td><td>Pass length divided by the time until the header</td></tr>
+        <tr><td>Where a clearance landed</td><td><span class="tag proxy">Proxy</span></td><td>Location of the next event, since clearances have no end point</td></tr>
+        <tr><td>Strength and jumping</td><td><span class="tag proxy">Proxy</span></td><td>EA FC ratings, side test only</td></tr>
+        <tr><td>Running speed before the jump</td><td><span class="tag proxy">Proxy</span></td><td>Metrica tracking, two games only</td></tr>
+        <tr><td>Height of the ball at contact</td><td><span class="tag no">Not possible</span></td><td>No free source tracks the ball in three dimensions</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>What the final dataset holds</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Table</th><th class="num">Rows</th><th>Outcome recorded</th></tr></thead>
+      <tbody>
+        <tr><td>Headed shots</td><td class="num">10,327</td><td>Goal (1,101) and on target (3,217)</td></tr>
+        <tr><td>Aerial duels with both players known</td><td class="num">95,942</td><td>Which player won</td></tr>
+        <tr><td>Defensive headers</td><td class="num">75,968</td><td>Who got the next ball, and whether the opponent shot within 10 seconds</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>About 6 in 10 headed shots come from the 2015/16 Premier League, La Liga, Serie A and Ligue 1, the only full club seasons in the open data. Other seasons mostly follow one team, usually Barcelona, and tournaments give each player seven games at most.</p>
+
+  <h2>Matching heights to players</h2>
+  <p>StatsBomb and Transfermarkt share no player ID, so the only link is the name. Names are messier than they look.</p>
+  <div class="example">
+    <h3>Two players called Konstantinos Manolas</h3>
+    <p>Transfermarkt lists two Greek defenders with exactly this name, born in 1991 and 1993, measured at 185 and 183 cm. Matching by name alone would have to guess. The matcher also checks that a player's birth year fits the seasons he played and whether he appeared for the same clubs. Only one Manolas played for Roma, so he is the one used.</p>
+  </div>
+  <div class="example">
+    <h3>A nickname that points to the wrong man</h3>
+    <p>The Portugal midfielder Maniche is recorded under his legal name, Nuno Ricardo de Oliveira Ribeiro. An early version matched him to a different player called Ricardo Ribeiro, because those two words appear inside the long name. The fix was a rule that a player known by a nickname cannot be matched on part of his legal name.</p>
+  </div>
+  <div class="key"><p>A missing height is better than a wrong one. When the matcher is unsure, it leaves the height blank.</p></div>
+  <p>In the end, 90% of headed shots and 86% of aerial duels (both players) have a height. Random samples of matches were checked by hand, and goalkeepers average 189 cm against 181 cm for outfield players, as expected.</p>
+
+  <h2>Licences</h2>
+  <p>StatsBomb allows free use for research and requires its logo on published analysis, but it does not allow the raw data to be shared. The code therefore downloads the data instead of storing it. Transfermarkt's dataset is public domain (CC0), Metrica asks for credit, and EA ratings are scraped from SoFIFA, so they are used but never republished.</p>
+</div>

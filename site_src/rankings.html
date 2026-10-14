@@ -1,0 +1,54 @@
+<div class="page-title">
+  <p class="chapter-no">Chapter 5</p>
+  <h1>Player rankings</h1>
+  <p class="lede">Every player with at least 100 aerial duels and a known height, ranked by duels won above what the model expected. This is the one header metric that passed the reliability test in chapter 4.</p>
+</div>
+
+<div class="col">
+  <h2>How to read the table</h2>
+  <p><strong>Above expected</strong> is extra duels won per 100, after shrinking toward average. The model behind it already knows both players' heights, positions, the delivery and the location, so a high number means a player wins more than his size and situation explain. The <strong>likely range</strong> shows where his true number probably sits, with an 80% chance. When the whole range is on one side of the middle line, the player is clearly above or below average.</p>
+  <p>Most duels come from the 2015/16 season, so clubs and heights reflect that time.</p>
+</div>
+
+<div class="wide">
+  <div class="controls">
+    <label>Search a player or club
+      <input id="q" type="search" placeholder="for example Manolas or Roma" autocomplete="off">
+    </label>
+    <label>Position
+      <select id="pos">
+        <option value="def">Defenders</option>
+        <option value="fwd">Forwards</option>
+        <option value="mid">Midfielders</option>
+        <option value="all">All positions</option>
+      </select>
+    </label>
+    <span class="count" id="count" aria-live="polite"></span>
+  </div>
+  <div class="table-wrap">
+    <table id="duels">
+      <thead>
+        <tr>
+          <th class="num" scope="col">#</th>
+          <th scope="col"><button data-k="name">Player</button></th>
+          <th scope="col"><button data-k="club">Main club</button></th>
+          <th scope="col"><button data-k="pos">Position</button></th>
+          <th class="num" scope="col"><button data-k="h">Height (cm)</button></th>
+          <th class="num" scope="col"><button data-k="n">Duels</button></th>
+          <th class="num" scope="col"><button data-k="won">Won</button></th>
+          <th class="num" scope="col"><button data-k="exp">Expected</button></th>
+          <th class="num" scope="col" aria-sort="descending"><button data-k="above">Above expected, per 100</button></th>
+          <th scope="col" class="bar-cell">Likely range</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <button class="more" id="more" type="button">Show all players</button>
+  <noscript><p>The table needs JavaScript. The same data is in <a href="https://github.com/lipealiseda/header-quality/blob/main/results/rank_duels_vs_expected.csv">rank_duels_vs_expected.csv</a> on GitHub.</p></noscript>
+</div>
+
+<div class="col">
+  <h2>Other rankings</h2>
+  <p>Rankings for headers on target, headed goals minus xG and clearance quality are in the <a href="https://github.com/lipealiseda/header-quality/blob/main/results/stage4_rankings.md">full results on GitHub</a>. They are kept off this page on purpose, because chapter 4 showed they are mostly luck at current sample sizes.</p>
+</div>

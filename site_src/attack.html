@@ -1,0 +1,57 @@
+<div class="page-title">
+  <p class="chapter-no">Chapter 2</p>
+  <h1>Attacking headers</h1>
+  <p class="lede">What turns a header into a goal, and does anyone finish headers better than the situation predicts?</p>
+</div>
+
+<div class="col">
+  <h2>Expected goals, in one example</h2>
+  <div class="example">
+    <p>Of the 2,129 headed shots taken inside the six yard box, 21% were goals. Of the 2,182 taken around the penalty spot, only 6% were. That rate is the idea behind expected goals (xG). Every header gets a probability based on headers like it, and a player's goals minus his xG shows whether he scored more than his chances deserved.</p>
+    <p>A real xG model does the same thing with many details at once, such as the angle, the defenders in the way, where the keeper stands and how the ball arrived.</p>
+  </div>
+</div>
+
+<figure>
+  <img src="img/a1_header_goal_map.png" alt="Map of the penalty box shaded by the share of headed shots scored. The darkest area, around 40%, is directly in front of goal inside the six yard box, fading to under 5% near the edge of the box." width="1350" height="810" loading="lazy">
+  <figcaption>Headed goals are concentrated in a small area in front of the posts. Outside the six yard box the chance falls quickly.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>How the ball arrives matters</h2>
+  <p>A flick on from a teammate is the best headed chance, with about 1 in 5 going in. Corners and long balls are the worst, at about 1 in 12. Corner headers face 8.6 defenders in the box on average, against 5.9 for other deliveries, and 63% of them are under pressure.</p>
+</div>
+
+<figure>
+  <img src="img/a2_delivery_type.png" alt="Dot chart of goal rate and on target rate by delivery type. Flick ons lead with 21% scored and 56% on target. Corners have 8% scored and 24% on target. Long balls have 8% scored." width="1350" height="900" loading="lazy">
+  <figcaption>Each dot is a rate, and the line through it shows the range the true rate probably sits in. Short lines mean many shots.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>What the model relies on</h2>
+  <p>Two models were built for every question, a logistic regression that is easy to explain and a gradient boosting model that can find more complex patterns. To see what a model leans on, one input at a time is shuffled at random and the drop in accuracy is measured.</p>
+</div>
+
+<figure>
+  <img src="img/a3_attack_drivers.png" alt="Two bar charts. For goals, angle to goal accounts for 41% and distance 21%. For accuracy, angle is 24%, delivery speed 21% and a contested header 18%." width="1350" height="900" loading="lazy">
+</figure>
+
+<div class="col">
+  <p>Angle and distance explain about 60% of what the goal model knows. Getting the header on target depends more on the delivery, especially how fast the ball comes in and whether the header was contested.</p>
+  <div class="key"><p>Height is not on either list. Taller players do not score more than their xG says, and adding height to the model left its accuracy unchanged. Height helps a player reach the ball. Once he has, position and space decide the rest.</p></div>
+
+  <h2>How good is the model</h2>
+  <p>The model was tested on matches it never saw during training. It ranks a random goal above a random miss 74% of the time (AUC 0.743), close to StatsBomb's own professional xG on the same shots (0.749). It is also well calibrated. When it gives a group of headers about a 10% chance, 10.7% of them go in.</p>
+
+  <h2>Does anyone finish headers better than expected?</h2>
+  <p>This was one of the main questions, and the honest answer is that the data cannot tell. Only 47 players have 25 or more headed shots, and their goals sit inside the range that luck alone would produce.</p>
+</div>
+
+<figure>
+  <img src="img/a4_finishing_is_luck.png" alt="Scatter of actual against expected headed goals for 47 players. Almost all fall inside a gray band showing where luck alone would put them. Gareth Bale and Sergio Ramos sit above it." width="1350" height="900" loading="lazy">
+  <figcaption>Gareth Bale scored 10 headed goals from 4.0 expected, the best mark here. Yet 6 of 47 players fall outside the luck band, close to the 5 that chance alone would put there.</figcaption>
+</figure>
+
+<div class="col">
+  <div class="key warn"><p>A list of who beats their headed xG is easy to make and looks convincing. Chapter 4 shows why it should not be trusted.</p></div>
+</div>

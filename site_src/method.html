@@ -1,0 +1,53 @@
+<div class="page-title">
+  <p class="chapter-no">Chapter 6</p>
+  <h1>Method and limits</h1>
+  <p class="lede">How the models were built and checked, the mistakes caught along the way, and what free data cannot answer yet.</p>
+</div>
+
+<div class="col">
+  <h2>The models</h2>
+  <p>Each question got two models, a logistic regression and a gradient boosting model from scikit-learn. They were scored with five fold cross validation grouped by match, so a match is never used for training and testing at the same time. The predictions used for player rankings are out of fold, which means a player is never judged by a model that saw his own headers.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Question</th><th class="num">Rows</th><th>Better model</th><th class="num">AUC</th></tr></thead>
+      <tbody>
+        <tr><td>Is the headed shot a goal?</td><td class="num">10,327</td><td>Logistic</td><td class="num">0.743</td></tr>
+        <tr><td>Is it on target?</td><td class="num">10,327</td><td>Logistic</td><td class="num">0.628</td></tr>
+        <tr><td>Does the defending player win the aerial duel?</td><td class="num">93,684</td><td>Boosting</td><td class="num">0.667</td></tr>
+        <tr><td>Does the opponent shoot within 10 seconds of a defensive header?</td><td class="num">75,968</td><td>Boosting</td><td class="num">0.739</td></tr>
+        <tr><td>Does the defending team win the next ball?</td><td class="num">68,844</td><td>Boosting</td><td class="num">0.694</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small">AUC is the chance the model rates a random success above a random failure. 0.5 is a coin flip and 1 is perfect. The simple logistic model won for headed shots, where there are about 10,000 rows, and boosting won for the larger defensive tables.</p>
+
+  <h2>Mistakes caught along the way</h2>
+  <p>Each of these would have made the results look better or different than they really are. They are listed because checking for them is most of the work.</p>
+  <ul>
+    <li><strong>A duel described by its own result.</strong> For 13% of aerial duels, the "incoming pass" first picked was actually the winner's own header, because StatsBomb sometimes logs it first. The model would have been fed the outcome. Linked events are now skipped.</li>
+    <li><strong>A label that gave away the answer.</strong> Defensive headers are logged as a pass when they reach a teammate and as a clearance when they do not. That label was removed from the model that predicts who gets the ball next.</li>
+    <li><strong>A sign that made no football sense.</strong> The first header xG model said being under pressure made a goal slightly more likely. The pressure flag overlaps with the distance to the nearest defender, which the model already had. In the raw data, pressured headers score about half as often at every distance. The flag was dropped and accuracy did not change.</li>
+    <li><strong>Missing heights counted as skill.</strong> Players with no height on file, like Luca Toni at 193 cm, rose up the duel rankings because the model did not know they were tall. Duel rankings now include only players with a known height.</li>
+    <li><strong>A tracking leak.</strong> The first speed test scored an AUC of 0.90 on 38 duels, which was too good to be true. Metrica logs the duel location at the winner's own position, so "moving toward the duel" partly meant "being the winner". Measured toward the tracked ball instead, the AUC fell to 0.53.</li>
+  </ul>
+
+  <h2>Do jumping, strength and speed explain it?</h2>
+  <p>Free data has no physical tests, so two side tests looked at what height cannot explain.</p>
+  <h3>EA FC ratings</h3>
+  <p>Ratings from the FIFA 15 to 22 games were matched to 4,941 players. A match was thrown out when EA's height differed from Transfermarkt's by more than 5 cm. Among 483 players with 100 or more duels, the jumping rating has the strongest link with winning more duels than height predicts (correlation 0.28), followed by heading (0.18) and strength (0.12). Sprint speed shows no link. All the ratings together explain only 12% of the differences between players, so most of what makes someone good in the air is not in the ratings. Added to the duel model, they lift AUC from 0.667 to 0.675.</p>
+  <p>The ratings were kept out of the main models on purpose. If the expected value already knew a player's heading rating, a ranking would only say who beats EA's opinion, and EA's scouts partly rate heading by watching the same headers.</p>
+  <h3>Tracking data</h3>
+  <p>In two Metrica games, 38 aerial duels had both players tracked for the full second before contact. Speed, top speed, distance covered and movement toward the ball did not pick the winner better than a coin flip (AUC 0.53, with a 95% range of 0.34 to 0.73). Two games are far too few to rule out a real effect.</p>
+
+  <h2>Limits</h2>
+  <ul>
+    <li>Most of the data comes from the 2015/16 season of four leagues, so the rankings describe those years more than today.</li>
+    <li>Strength, jumping reach and speed are not measured, only approximated by game ratings. A player's above expected number contains all of them at once.</li>
+    <li>Only 47 players have 25 or more headed shots, which is the main reason finishing cannot be judged.</li>
+    <li>The duel model is useful but modest. Context it does not see, like a team's set piece routines, could still be hiding in player numbers.</li>
+    <li>Clearances have no end location in StatsBomb data, so where a clearance landed is approximated by the next event.</li>
+  </ul>
+
+  <h2>Run it yourself</h2>
+  <p>Everything on this site is produced by the code on <a href="https://github.com/lipealiseda/header-quality">GitHub</a>. A fresh copy of the repository was run from start to finish and gave identical results. The raw StatsBomb data is downloaded by a script rather than stored, as its licence requires.</p>
+</div>

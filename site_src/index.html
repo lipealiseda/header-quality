@@ -1,0 +1,49 @@
+<section class="hero">
+  <div>
+    <h1>Who wins in the air, and does it last?</h1>
+    <p class="lede">A study of 10,327 headed shots and 95,942 aerial duels from StatsBomb open data. It asks what makes a header work in attack and in defense, which players head the ball better than their situation predicts, and which of those differences are real skill.</p>
+    <p class="byline">By Filipe Aliseda, statistics student at the University of Florida. <a href="https://github.com/lipealiseda/header-quality">Code on GitHub</a>.</p>
+  </div>
+  <svg viewBox="40 70 360 225" role="img" aria-labelledby="hero-t">
+    <title id="hero-t">A cross curling into the penalty box toward an attacker and a defender</title>
+    <g fill="none" stroke="#c9ccc6" stroke-width="1.5">
+      <line x1="8" y1="280" x2="392" y2="280"/>
+      <rect x="70" y="174" width="260" height="106"/>
+      <rect x="141" y="245" width="118" height="35"/>
+      <path d="M 152.5 174 A 59 59 0 0 1 247.5 174"/>
+    </g>
+    <rect x="176" y="280" width="48" height="8" fill="none" stroke="#18242f" stroke-width="2"/>
+    <circle cx="200" cy="209" r="2" fill="#c9ccc6"/>
+    <path class="cross-path" d="M 372 250 C 340 90, 250 70, 196 222" fill="none" stroke="#8a929a" stroke-width="1.5"/>
+    <ellipse cx="197" cy="236" rx="16" ry="4" fill="#18242f" opacity="0.08"/>
+    <circle cx="188" cy="232" r="8" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/>
+    <circle cx="207" cy="228" r="8" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+    <text x="150" y="226" font-family="Archivo, sans-serif" font-size="11" fill="#5a6570" text-anchor="end">attacker</text>
+    <text x="220" y="223" font-family="Archivo, sans-serif" font-size="11" fill="#5a6570">defender</text>
+    <line x1="152" y1="229" x2="178" y2="231" stroke="#c9ccc6" stroke-width="1"/>
+    <circle class="ball" r="5.5" fill="#fff" stroke="#18242f" stroke-width="2"/>
+  </svg>
+</section>
+
+<div class="col">
+  <h2>Three things this project found</h2>
+  <ul class="findings">
+    <li><span class="stat">39% vs 76%</span>How often the defending player wins an aerial duel when he is more than 10 cm shorter than the attacker, against more than 10 cm taller. Height mostly decides who reaches the ball first.</li>
+    <li><span class="stat">0.67 reliability</span>Winning more aerial duels than the model expects is a real skill. It repeats from one set of matches to the next, even after both players' heights are taken into account.</li>
+    <li><span class="stat bad">0.02 reliability</span>Scoring more headed goals than expected (goals minus xG) looks like luck in this data. Nobody can be shown to finish headers better than their chances predict.</li>
+  </ul>
+
+  <h2>How to read this site</h2>
+  <p>Each chapter builds on the one before, and each takes about five minutes. If you only have one minute, read chapter 4.</p>
+  <ol class="toc">
+    <li><span class="n">1</span><a href="data.html">The data</a><p>What free football data contains, which factors it can measure, and how player heights were matched.</p></li>
+    <li><span class="n">2</span><a href="attack.html">Attacking headers</a><p>A header expected goals model, where headed goals come from, and why corners make poor chances.</p></li>
+    <li><span class="n">3</span><a href="defense.html">Defensive headers</a><p>What decides an aerial duel, and how dangerous a clearance is depending on where it happens.</p></li>
+    <li><span class="n">4</span><a href="skill.html">Skill or luck</a><p>How each ranking was tested to see whether it measures something real.</p></li>
+    <li><span class="n">5</span><a href="rankings.html">Rankings</a><p>Search and sort 512 players by aerial duels won above expectation.</p></li>
+    <li><span class="n">6</span><a href="method.html">Method and limits</a><p>The models, how they were checked, the mistakes caught along the way, and what free data cannot tell us.</p></li>
+  </ol>
+
+  <h2>Why headers</h2>
+  <p>Headers decide a large share of set pieces, and clubs pay for players who are good in the air. Yet the usual numbers, like aerial duel win rate, mix skill with situation. A tall centre back who mostly contests long goal kicks will win a lot of duels without being special. This project compares every header with what an average player would have done in the same spot, then checks whether the difference holds up.</p>
+</div>

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skill or luck. Header quality in football</title>
+<meta name="description" content="Who wins in the air, and does it last? Expected models for headers and aerial duels from StatsBomb open data, by Filipe Aliseda.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='%23fcfcfb' stroke='%2318242f' stroke-width='3'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="site-head"><div class="inner">
+<a class="brand" href="index.html">Header quality in football</a>
+<nav aria-label="Chapters"><ul class="chapters">
+<li><a href="data.html"><span class="num">1</span>Data</a></li>
+<li><a href="attack.html"><span class="num">2</span>Attack</a></li>
+<li><a href="defense.html"><span class="num">3</span>Defense</a></li>
+<li><a href="skill.html" aria-current="page"><span class="num">4</span>Skill or luck</a></li>
+<li><a href="rankings.html"><span class="num">5</span>Rankings</a></li>
+<li><a href="method.html"><span class="num">6</span>Method</a></li>
+</ul></nav>
+</div></header>
+<main>
+<div class="page-title">
+  <p class="chapter-no">Chapter 4</p>
+  <h1>Skill or luck</h1>
+  <p class="lede">A player ranking is only useful if it would look similar with a different set of matches. This chapter shows how every ranking in the project was tested, and which ones passed.</p>
+</div>
+
+<div class="col">
+  <h2>The problem with raw numbers</h2>
+  <p>Gareth Bale scored 10 headed goals from 4.0 expected. Pape Paye won 16 of 22 aerial duels when an average player would have won 9. Both numbers look impressive, and both come from small samples. A few lucky bounces can produce a number like that, so three steps separate what looks good from what is real.</p>
+
+  <h2>Step one, compare with what was expected</h2>
+  <p>Every header gets a probability from the models in chapters 2 and 3, made without seeing that player's own headers. A player's number is what he actually did minus the sum of those probabilities, divided by how many headers he had. For aerial duels it is reported per 100 duels.</p>
+
+  <h2>Step two, pull small samples toward average</h2>
+  <p>A player with 22 duels and a player with 423 duels should not be trusted equally. The fix is a standard statistical method called empirical Bayes shrinkage. It estimates how much true skill varies between players, then pulls each player's number toward zero according to how noisy his own sample is.</p>
+  <div class="example">
+    <h3>Two players, two sample sizes</h3>
+    <p><strong>Pape Paye</strong> won 16 aerial duels from 9.1 expected over 22 duels, which is +31 per 100. With so few duels, the method keeps only a quarter of that, and he ends at +8.</p>
+    <p><strong>Aritz Aduriz</strong> won 239 from 151 expected over 423 duels, which is +21 per 100. With that much evidence the method keeps most of it, and he ends at +18, the best of any player.</p>
+  </div>
+
+  <h2>Step three, check that it repeats</h2>
+  <p>Even shrunk numbers can be mostly noise. The real test is whether a player's number in one set of matches predicts his number in another. This is called split half reliability.</p>
+  <ol class="steps">
+    <li>Every match is randomly assigned to group A or group B. A whole match always goes to one side, so things like a weak opponent cannot appear in both halves.</li>
+    <li>Each player's above expected number is worked out separately in group A and in group B.</li>
+    <li>Across all players, the A numbers are correlated with the B numbers. If good players in A are also good in B, the metric is measuring something real.</li>
+    <li>Each half only has half the data, so the result is scaled up to full length with a standard correction (Spearman Brown), and the whole process is repeated 50 times and averaged.</li>
+  </ol>
+  <p>A reliability of 0 means the ranking is pure luck. A reliability of 1 means it is pure skill. Around 0.5 and above, a ranking is worth using.</p>
+</div>
+
+<figure>
+  <img src="img/d4_which_metrics_are_skill.png" alt="Bar chart of reliability for five metrics. Aerial duels won above expected scores 0.67. Headers on target above expected 0.24, opponent shots prevented 0.17, next ball won 0.05 and headed goals minus xG 0.02." width="1350" height="780" loading="lazy">
+</figure>
+
+<div class="col">
+  <p>Only one metric clears the bar. Aerial duel ability repeats strongly, even though the model behind it already knows both players' heights. Heading accuracy and clearance quality show a weak signal. Headed finishing and winning the next ball look like luck at these sample sizes.</p>
+
+  <h2>Is it the player or his team?</h2>
+  <p>A team that defends crosses well could make all its defenders look good. To check, each player's duel number was compared with the number for his teammates in the same matches. The correlation is only 0.10, and the spread between teams is about a third of the spread between players. Aerial duel skill looks individual.</p>
+
+  <div class="key"><p>For scouting in the air, use aerial duels won above expectation. Treat headed goals above xG as noise until there is far more data per player.</p></div>
+</div>
+
+<nav class="pager" aria-label="Chapters"><a class="prev" href="defense.html"><span class="dir">Previous</span><span class="t">Defensive headers</span></a><a class="next" href="rankings.html"><span class="dir">Next</span><span class="t">Rankings</span></a></nav>
+</main>
+<footer class="site-foot"><div class="inner">
+<p>Built by Filipe Aliseda, statistics student at the University of Florida. Code, data pipeline and full results are on <a href="https://github.com/lipealiseda/header-quality">GitHub</a>. Heights from the Transfermarkt dataset by David Cariboo (CC0). Tracking data from Metrica Sports sample data.</p>
+<div class="credit"><span>Data provided by</span><img src="img/statsbomb_logo.png" alt="StatsBomb"></div>
+</div></footer>
+
+</body>
+</html>

@@ -1,0 +1,58 @@
+<div class="page-title">
+  <p class="chapter-no">Chapter 3</p>
+  <h1>Defensive headers</h1>
+  <p class="lede">Who wins aerial duels, and what makes a defensive header actually safe?</p>
+</div>
+
+<div class="col">
+  <h2>Height comes first</h2>
+  <p>StatsBomb records the loser of every aerial duel and links him to the winner, so both players and both heights are known. That makes it possible to ask the simplest question directly.</p>
+</div>
+
+<figure>
+  <img src="img/d1_height_and_duels.png" alt="Line chart rising from about 32% when the defender is 20 cm shorter to about 82% when he is 20 cm taller. At equal height the defender wins 59%." width="1350" height="900" loading="lazy">
+  <figcaption>Every 2 cm of extra height adds roughly 2 to 3 points to the defender's chance of winning.</figcaption>
+</figure>
+
+<div class="col">
+  <p>When the defender is more than 10 cm shorter than the attacker he wins 39% of duels. When he is more than 10 cm taller he wins 76%. Even at the same height the defending player wins 59%. The data does not say why, but a likely reason is that defenders usually face the ball as it arrives while attackers often have to turn or run onto it.</p>
+
+  <h2>What else decides a duel</h2>
+  <p>A model trained on 93,684 duels, and tested on matches it had not seen, ranks the inputs like this.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Factor</th><th class="num">Share of what the model knows</th></tr></thead>
+      <tbody>
+        <tr><td>Where the duel happens (distance from the defender's goal line)</td><td class="num">20%</td></tr>
+        <tr><td>Where the delivery started</td><td class="num">19%</td></tr>
+        <tr class="hl"><td>Height difference between the two players</td><td class="num">17%</td></tr>
+        <tr><td>Phase of play, such as a goal kick or a corner</td><td class="num">12%</td></tr>
+        <tr><td>Defender's position</td><td class="num">11%</td></tr>
+        <tr><td>Type of delivery</td><td class="num">6%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Adding height lifted the model's accuracy (AUC) from 0.643 to 0.667. That sounds small, but duels are close to a coin flip by nature, so any reliable edge matters. The model still leaves plenty unexplained, and part of that gap is individual skill, which chapter 4 measures.</p>
+
+  <h2>Where you clear it matters most</h2>
+  <p>A good defensive header does more than win the ball. It has to stop the opponent from getting a shot soon after. For 75,968 defensive headers, the model looks at whether the other team shot within 10 seconds.</p>
+</div>
+
+<figure class="narrow">
+  <img src="img/d2_clearance_danger_map.png" alt="Map of a team's own half shaded by the chance the opponent shoots within 10 seconds of a defensive header. Inside the box the chance is around 14%, darkest near the six yard box, and it falls below 3% outside the box." width="1350" height="1050" loading="lazy">
+</figure>
+
+<div class="col">
+  <p>A header made inside your own box is followed by an opponent shot 14% of the time. Outside the box it is under 3%. Distance from goal explains about three quarters of what this model knows. The defender himself seems to matter much less, since how often a player's clearances avoid danger barely repeats from one set of matches to the next.</p>
+
+  <h3>Keeping the ball</h3>
+  <p>After a defensive header, the defending team wins the next ball 45% of the time. One trap was avoided here. StatsBomb tends to record a header as a pass when it reaches a teammate and as a clearance when it does not, so using that label would have quietly given the model the answer. It was left out.</p>
+
+  <h2>Who is good in the air</h2>
+  <p>Once the model knows the height of both players, the delivery, the location and the positions, any player who still wins more duels than expected is doing something the situation does not explain.</p>
+</div>
+
+<figure>
+  <img src="img/d3_best_defenders_in_the_air.png" alt="Dot chart of the top 10 and bottom 5 defenders in aerial duels won above expected per 100 duels. Konstantinos Manolas leads at plus 12.3. Daley Blind is lowest at minus 14.4." width="1350" height="1050" loading="lazy">
+  <figcaption>Each line shows the range the player's true number probably sits in. Search every player on the <a href="rankings.html">rankings page</a>.</figcaption>
+</figure>
