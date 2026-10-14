@@ -57,7 +57,7 @@
 
   <h2 id="mixed">A second way to rank players</h2>
   <p>The duel rankings use empirical Bayes. Each player's wins minus expected wins are added up, then pulled toward average depending on how much data he has. A standard alternative is a mixed effects model, a logistic regression that gives every player his own adjustment and estimates all of them together. Here each duel's log odds are the duel model's prediction plus the defender's adjustment minus the attacker's, with the adjustments assumed to follow a normal distribution.</p>
-  <p>The practical difference is the opponent. Empirical Bayes treats every opponent as average. The mixed model knows that beating a player who is himself strong in the air means more than beating a weak one. The statsmodels library could not be installed in this environment, so the model was fit directly with the Laplace approximation, the same method R's lme4 package uses by default, and checked first on simulated data with known answers (it recovered a true spread of 0.35 as 0.33, and its player estimates correlated 0.92 with the truth).</p>
+  <p>The practical difference is the opponent. Empirical Bayes treats every opponent as average. The mixed model knows that beating a player who is himself strong in the air means more than beating a weak one. The model was fit with the Laplace approximation, the same method R's lme4 package uses by default. It was checked first on simulated data with known answers, where it recovered a true spread of 0.35 as 0.33 and its player estimates correlated 0.92 with the truth.</p>
 </div>
 
 <figure>
