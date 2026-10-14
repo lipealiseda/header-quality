@@ -98,6 +98,15 @@ def main():
           "|---|---|---|"]
     for b, g in k.groupby("bin", observed=True):
         L.append(f"| {b} | {g['def_won'].mean():.0%} | {len(g):,} |")
+    hg_path = RES / "duel_height_gain.csv"
+    if hg_path.exists():  # written by height_gain.py
+        hg = pd.read_csv(hg_path).set_index(["metric", "method"])
+        a = hg.loc[("auc", "paired match bootstrap")]
+        dl = hg.loc[("auc", "DeLong")]
+        L += ["", f"Adding height lifts the duel model's AUC from {a.without_height:.3f} to {a.with_height:.3f}. "
+              f"Both versions were scored on the same 1,000 match resamples, so the interval is for the gain "
+              f"itself, +{a.difference:.3f} (95% interval {a.lo:.3f} to {a.hi:.3f}), and no resample showed a "
+              f"gain of zero or less. DeLong's test agrees (p {'< 0.001' if dl.p < 0.001 else f'= {dl.p:.3f}'})."]
     L += ["", "For headed shots, goals minus StatsBomb xG per shot stays within one percentage point of zero across "
           "every height group, so taller players do not finish headers better once the situation is accounted for.",
           "", "## Notes", "",

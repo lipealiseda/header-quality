@@ -9,7 +9,7 @@ How good are players with their heads, in attack and in defense, once you accoun
 ## Main findings
 
 - Winning aerial duels is a repeatable skill. Split-half reliability is 0.67 (95% interval 0.59 to 0.74, over 200 random match splits) even after the model accounts for both players' heights, positions, the delivery and the location.
-- Height is the biggest single driver of who wins a duel, 30% of the duel model's accuracy (range 26% to 35%) when both heights and their difference are shuffled together in permutation importance, first in all 15 repeats. A defender 10+ cm taller than his man wins 76% (95% interval 75% to 77%), one 10+ cm shorter 39% (38% to 40%).
+- Height is the biggest single driver of who wins a duel, 30% of the duel model's accuracy (range 26% to 35%) when both heights and their difference are shuffled together in permutation importance, first in all 15 repeats. Refitting without height lowers AUC from 0.667 to 0.643, a paired gain of 0.024 (95% interval 0.021 to 0.026, same match resamples for both models). A defender 10+ cm taller than his man wins 76% (95% interval 75% to 77%), one 10+ cm shorter 39% (38% to 40%).
 - Height does not help once the header is won. Taller players do not beat their headed xG.
 - Headed goals minus xG shows no sign of being a skill (reliability about 0), but with only 47 qualified players the 95% interval reaches 0.53, so moderate finishing skill cannot be ruled out either.
 - The header xG model (logistic regression, AUC 0.743, 95% interval 0.728 to 0.758) cannot be told apart from StatsBomb's own xG on the same shots (difference -0.006, interval -0.014 to +0.003, paired match bootstrap p = 0.20), and it is better calibrated there.
@@ -76,7 +76,7 @@ EA FC ratings (FIFA 15 to 22) were matched to players as rough proxies for physi
 
 - **Mixed effects model.** A crossed random intercept logistic model (player effects for both defender and attacker, on top of the duel model's prediction) was fit by Laplace approximation and checked on simulated data first. It ranks players almost exactly like the empirical Bayes ranking (Spearman 0.988, 95% interval 0.985 to 0.990). Players who move up faced stronger opponents. See [results/mixed_model_summary.md](results/mixed_model_summary.md).
 - **One team seasons.** Seasons that follow a single team, mostly Barcelona, hold 26% of matches and 18% of duels. Refitting the duel model without them leaves AUC at 0.666 and reliability at 0.67, with a rank correlation of 0.987 for players ranked both ways. See [results/data_sanity.md](results/data_sanity.md), which also explains the 2,258 duels (95,942 to 93,684) that cannot enter the model because no pass came before them.
-- **Importance.** How the duel drivers were measured, single and grouped, with the drop column check, is in [results/duel_importance.md](results/duel_importance.md).
+- **Importance.** How the duel drivers were measured, single and grouped, with the drop column check, is in [results/duel_importance.md](results/duel_importance.md). The paired interval for what height adds is in [results/duel_height_gain.csv](results/duel_height_gain.csv).
 
 ![Mixed model against empirical Bayes](figures/m2_glmm_vs_eb.png)
 

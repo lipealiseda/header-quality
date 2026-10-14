@@ -64,6 +64,8 @@ Height matters a lot for winning the header and not at all for what happens afte
 | 5 to 10 cm taller | 68% | 12,696 |
 | 10+ cm taller | 76% | 8,822 |
 
+Adding height lifts the duel model's AUC from 0.643 to 0.667. Both versions were scored on the same 1,000 match resamples, so the interval is for the gain itself, +0.024 (95% interval 0.021 to 0.026), and no resample showed a gain of zero or less. DeLong's test agrees (p < 0.001).
+
 For headed shots, goals minus StatsBomb xG per shot stays within one percentage point of zero across every height group, so taller players do not finish headers better once the situation is accounted for.
 
 ## Notes

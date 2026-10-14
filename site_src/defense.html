@@ -33,7 +33,7 @@
     </table>
   </div>
   <p>Height came first in all 15 tests. An earlier version of this page called height the third biggest factor, because it shuffled the height difference on its own while the model could still see both raw heights. The <a href="method.html#importance">Method page</a> shows both versions.</p>
-  <p>Adding height lifted the model's accuracy (AUC) from 0.643 to 0.667, and with 93,684 duels that gain is far larger than the uncertainty (the 95% interval with height is 0.663 to 0.670). That sounds small, but duels are close to a coin flip by nature, so any reliable edge matters. The model still leaves plenty unexplained, and part of that gap is individual skill, which chapter 4 measures.</p>
+  <p>Adding height lifted the model's accuracy (AUC) from 0.643 to 0.667. Both versions were scored on the same resampled matches, so the uncertainty is measured on the gain itself. The gain is 0.024 with a 95% interval of 0.021 to 0.026, and in none of the 1,000 resamples did height fail to help. That sounds small, but duels are close to a coin flip by nature, so any reliable edge matters. The model still leaves plenty unexplained, and part of that gap is individual skill, which chapter 4 measures.</p>
 
   <h2>Where you clear it matters most</h2>
   <p>A good defensive header does more than win the ball. It has to stop the opponent from getting a shot soon after. For 75,968 defensive headers, the model looks at whether the other team shot within 10 seconds.</p>
