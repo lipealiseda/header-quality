@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Talento ou sorte. Qualidade no jogo aéreo</title>
+<meta name="description" content="Quem ganha pelo alto, e isso se repete? Modelos esperados para cabeceios e duelos aéreos com dados abertos da StatsBomb, por Filipe Aliseda.">
+<link rel="alternate" hreflang="en" href="../skill.html">
+<link rel="alternate" hreflang="pt-BR" href="skill.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='%23fcfcfb' stroke='%2318242f' stroke-width='3'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="site-head"><div class="inner">
+<div class="brand-row"><a class="brand" href="index.html">Qualidade no jogo aéreo</a>
+<span class="lang-switch"><a href="../skill.html" lang="en" hreflang="en" title="English version">EN</a><a href="skill.html" aria-current="true" lang="pt-BR">PT</a></span></div>
+<nav aria-label="Capítulos"><ul class="chapters">
+<li><a href="data.html"><span class="num">1</span>Dados</a></li>
+<li><a href="attack.html"><span class="num">2</span>Ataque</a></li>
+<li><a href="defense.html"><span class="num">3</span>Defesa</a></li>
+<li><a href="skill.html" aria-current="page"><span class="num">4</span>Talento ou sorte</a></li>
+<li><a href="rankings.html"><span class="num">5</span>Rankings</a></li>
+<li><a href="method.html"><span class="num">6</span>Método</a></li>
+</ul></nav>
+</div></header>
+<main>
+<div class="page-title">
+  <p class="chapter-no">Capítulo 4</p>
+  <h1>Talento ou sorte</h1>
+  <p class="lede">Um ranking de jogadores só serve se ficasse parecido com outro conjunto de jogos. Este capítulo mostra como cada ranking do projeto foi testado, e quais passaram.</p>
+</div>
+
+<div class="col">
+  <h2>O problema dos números brutos</h2>
+  <p>Gareth Bale marcou 10 gols de cabeça com 4,0 esperados. Pape Paye ganhou 16 de 22 duelos aéreos quando um jogador médio teria ganhado 9. Os dois números impressionam, e os dois vêm de amostras pequenas. Alguns quiques de sorte podem gerar um número assim, então três passos separam o que parece bom do que é real.</p>
+
+  <h2>Passo um, comparar com o esperado</h2>
+  <p>Cada cabeceio recebe uma probabilidade dos modelos dos capítulos 2 e 3, calculada sem ver os cabeceios do próprio jogador. O número de um jogador é o que ele de fato fez menos a soma dessas probabilidades, dividido pelo número de cabeceios que ele teve. Para duelos aéreos, ele aparece a cada 100 duelos.</p>
+
+  <h2>Passo dois, puxar amostras pequenas para a média</h2>
+  <p>Um jogador com 22 duelos e outro com 423 duelos não merecem a mesma confiança. A solução é um método estatístico padrão chamado encolhimento por Bayes empírico. Ele estima o quanto o talento real varia entre os jogadores e depois puxa o número de cada um para zero de acordo com o quanto a sua própria amostra é ruidosa.</p>
+  <div class="example">
+    <h3>Dois jogadores, dois tamanhos de amostra</h3>
+    <p><strong>Pape Paye</strong> ganhou 16 duelos aéreos com 9,1 esperados em 22 duelos, o que dá +31 a cada 100. Com tão poucos duelos, o método mantém só um quarto disso, e ele termina em +8.</p>
+    <p><strong>Aritz Aduriz</strong> ganhou 239 com 151 esperados em 423 duelos, o que dá +21 a cada 100. Com tanta evidência, o método mantém a maior parte, e ele termina em +18, o melhor de todos os jogadores.</p>
+  </div>
+
+  <h2>Passo três, conferir se se repete</h2>
+  <p>Mesmo números encolhidos podem ser quase só ruído. O teste de verdade é ver se o número de um jogador em um conjunto de jogos prevê o número dele em outro. Isso se chama confiabilidade por metades.</p>
+  <ol class="steps">
+    <li>Cada jogo é sorteado para o grupo A ou o grupo B. Um jogo inteiro vai sempre para um lado só, então coisas como um adversário fraco não aparecem nas duas metades.</li>
+    <li>O número acima do esperado de cada jogador é calculado separadamente no grupo A e no grupo B.</li>
+    <li>Considerando todos os jogadores, os números de A são correlacionados com os de B. Se quem é bom em A também é bom em B, a métrica mede algo real.</li>
+    <li>Cada metade tem só metade dos dados, então a correlação é ajustada para a amostra toda com uma fórmula padrão, a correção de Spearman Brown.</li>
+    <li>O processo inteiro é repetido em 200 divisões aleatórias diferentes. A média é a confiabilidade. Para obter um intervalo de 95%, cada repetição também reamostra os jogadores com reposição, então o intervalo reflete tanto a divisão aleatória quanto quais jogadores calharam de estar nos dados.</li>
+  </ol>
+  <p>Uma confiabilidade de 0 quer dizer que o ranking é pura sorte. Uma confiabilidade de 1 quer dizer que é puro talento. De 0,5 para cima, vale a pena usar o ranking.</p>
+</div>
+
+<figure>
+  <img src="img/d4_which_metrics_are_skill.png" alt="Confiabilidade de cinco métricas com intervalos de 95%. Duelos aéreos ganhos acima do esperado marcam 0,67, de 0,59 a 0,74. Cabeceios no alvo 0,21, finalizações rivais evitadas 0,16, segunda bola ganha 0,03 e gols de cabeça menos xG perto de 0, todos com intervalos que começam abaixo de zero." width="1350" height="810" loading="lazy">
+</figure>
+
+<div class="col">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Métrica</th><th class="num">Jogadores</th><th class="num">Confiabilidade</th><th class="num">Intervalo de 95%</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td>Duelos aéreos ganhos acima do esperado</td><td class="num">512</td><td class="num">0,67</td><td class="num">0,59 a 0,74</td></tr>
+        <tr><td>Cabeceios no alvo acima do esperado</td><td class="num">47</td><td class="num">0,21</td><td class="num">abaixo de 0 a 0,60</td></tr>
+        <tr><td>Finalizações rivais evitadas após afastar</td><td class="num">224</td><td class="num">0,16</td><td class="num">abaixo de 0 a 0,38</td></tr>
+        <tr><td>Segunda bola ganha após afastar</td><td class="num">192</td><td class="num">0,03</td><td class="num">abaixo de 0 a 0,34</td></tr>
+        <tr><td>Gols de cabeça menos xG</td><td class="num">47</td><td class="num">perto de 0</td><td class="num">abaixo de 0 a 0,53</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Só uma métrica passa da marca. A habilidade em duelos aéreos se repete com força, com intervalo de 95% de 0,59 a 0,74, mesmo com o modelo por trás já sabendo a altura dos dois jogadores. A ponta de baixo do intervalo fica acima da estimativa de todas as outras métricas.</p>
+  <p>As outras quatro não mostram sinal claro, mas os intervalos contam uma segunda história importante. A finalização de cabeça tem confiabilidade perto de zero, mas o seu intervalo chega a 0,53, porque só 47 jogadores têm 25 ou mais finalizações de cabeça. Então os dados não encontram evidência de que alguns jogadores finalizam de cabeça melhor que outros, mas também não conseguem descartar um talento moderado. A pontaria de cabeça está na mesma situação, com um intervalo que vai até 0,60.</p>
+
+  <h2>É o jogador ou o time?</h2>
+  <p>Um time que defende bem os cruzamentos poderia fazer todos os seus defensores parecerem bons. Para conferir, o número de duelos de cada jogador foi comparado com o dos seus companheiros nos mesmos jogos. A correlação é de só 0,10, e a variação entre times é cerca de um terço da variação entre jogadores. O talento em duelos aéreos parece individual.</p>
+  <p>O ranking também resiste a duas verificações mais duras na página de Método. Um <a href="method.html#mixed">modelo de efeitos mistos</a>, que também ajusta pela força de cada adversário, ordena os jogadores quase do mesmo jeito (correlação de postos 0,988). E <a href="method.html#data-checks">tirar as temporadas que acompanham um time só</a>, sobretudo o Barcelona, mantém a confiabilidade em 0,67.</p>
+
+  <div class="key"><p>Para observar o jogo aéreo, use os duelos aéreos ganhos acima do esperado. Ainda não confie em gols de cabeça acima do xG. Os dados gratuitos têm poucos cabeceios por jogador para separar talento de sorte na finalização, em qualquer direção.</p></div>
+</div>
+
+<nav class="pager" aria-label="Capítulos"><a class="prev" href="defense.html"><span class="dir">Anterior</span><span class="t">Cabeceios na defesa</span></a><a class="next" href="rankings.html"><span class="dir">Próximo</span><span class="t">Rankings</span></a></nav>
+</main>
+<footer class="site-foot"><div class="inner">
+<p>Feito por Filipe Aliseda, estudante de estatística na Universidade da Flórida. Código, processamento dos dados e resultados completos estão no <a href="https://github.com/lipealiseda/header-quality">GitHub</a>. Alturas do conjunto de dados do Transfermarkt de David Cariboo (CC0). Dados de rastreamento das amostras da Metrica Sports.</p>
+<div class="credit"><span>Dados fornecidos por</span><img src="img/statsbomb_logo.png" alt="StatsBomb"></div>
+</div></footer>
+
+</body>
+</html>

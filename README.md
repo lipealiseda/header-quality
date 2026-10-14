@@ -2,7 +2,7 @@
 
 How good are players with their heads, in attack and in defense, once you account for the situation they were in? This project builds expected-value models for headers from free event data and uses them to rank players, then checks which of those rankings measure a real skill and which are mostly luck.
 
-**Read the illustrated version** at [lipealiseda.github.io/header-quality](https://lipealiseda.github.io/header-quality/), six short chapters with a searchable player table, or the one page summary in [WRITEUP.md](WRITEUP.md).
+**Read the illustrated version** at [lipealiseda.github.io/header-quality](https://lipealiseda.github.io/header-quality/), six short chapters with a searchable player table, or the one page summary in [WRITEUP.md](WRITEUP.md). There is also a [Portuguese version](https://lipealiseda.github.io/header-quality/pt/) of the site.
 
 ![Height and aerial duels](figures/d1_height_and_duels.png)
 
@@ -123,10 +123,10 @@ Individual stages can still be run as single scripts from `src/`, in the order l
 run_all.py      runs every stage in order
 src/            all code, one script per step
 tests/          unittest suite
-figures/        the charts
+figures/        the charts, Portuguese versions in figures/pt/
 results/        model metrics, intervals, calibration, rankings, robustness checks
 docs/           the website (built from site_src/) and the data dictionary
-site_src/       page content for the website
+site_src/       page content for the website, Portuguese pages in site_src/pt/
 WRITEUP.md      one page summary for scouts and analysts
 LICENSE         MIT, for the code only (data keeps its own licences)
 ```

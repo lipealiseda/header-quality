@@ -1,0 +1,132 @@
+<div class="page-title">
+  <p class="chapter-no">Capítulo 6</p>
+  <h1>Método e limites</h1>
+  <p class="lede">Como os modelos foram construídos e verificados, os erros encontrados no caminho e o que os dados gratuitos ainda não conseguem responder.</p>
+</div>
+
+<div class="col">
+  <h2>Os modelos</h2>
+  <p>Cada pergunta ganhou dois modelos, uma regressão logística e um modelo de gradient boosting do scikit-learn. Eles foram avaliados com validação cruzada de cinco partes agrupada por jogo, então um jogo nunca é usado para treinar e testar ao mesmo tempo. As previsões usadas nos rankings de jogadores são fora da amostra, ou seja, um jogador nunca é julgado por um modelo que viu os seus próprios cabeceios.</p>
+  <p>Todo número abaixo tem um intervalo de 95% vindo de um bootstrap por jogo. Os jogos são reamostrados com reposição 1.000 vezes e cada medida é calculada de novo. Jogos inteiros são reamostrados porque cabeceios do mesmo jogo estão ligados entre si. As previsões ficam fixas nesse processo, então os intervalos cobrem quais jogos calharam de estar nos dados, e não o efeito de treinar o modelo de novo.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Pergunta</th><th class="num">Linhas</th><th>Melhor modelo</th><th class="num">AUC (intervalo de 95%)</th><th class="num">Brier score</th><th class="num">Inclinação de calibração (intervalo de 95%)</th></tr></thead>
+      <tbody>
+        <tr><td>A finalização de cabeça é gol?</td><td class="num">10.327</td><td>Logística</td><td class="num">0,743 (0,728 a 0,758)</td><td class="num">0,086</td><td class="num">0,94 (0,88 a 1,01)</td></tr>
+        <tr><td>Vai no alvo?</td><td class="num">10.327</td><td>Logística</td><td class="num">0,628 (0,617 a 0,640)</td><td class="num">0,205</td><td class="num">0,89 (0,82 a 0,97)</td></tr>
+        <tr><td>O defensor ganha o duelo aéreo?</td><td class="num">93.684</td><td>Boosting</td><td class="num">0,667 (0,663 a 0,670)</td><td class="num">0,222</td><td class="num">1,04 (1,01 a 1,06)</td></tr>
+        <tr><td>O adversário finaliza em até 10 segundos depois de um cabeceio defensivo?</td><td class="num">75.968</td><td>Boosting</td><td class="num">0,739 (0,733 a 0,745)</td><td class="num">0,073</td><td class="num">1,03 (1,00 a 1,07)</td></tr>
+        <tr><td>O time que defende ganha a bola seguinte?</td><td class="num">68.844</td><td>Boosting</td><td class="num">0,694 (0,689 a 0,698)</td><td class="num">0,213</td><td class="num">1,05 (1,03 a 1,08)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small">AUC é a chance de o modelo dar uma nota maior a um acerto ao acaso do que a um erro ao acaso, onde 0,5 é cara ou coroa e 1 é perfeito. O Brier score é a média do quadrado da diferença entre previsão e resultado, então quanto menor, melhor. Uma inclinação de calibração de 1 quer dizer que as previsões estão tão espalhadas quanto deveriam, abaixo de 1 quer dizer um pouco extremas demais e acima de 1 um pouco cautelosas demais. As tabelas completas, incluindo o ganho em log loss com intervalos, estão nos <a href="https://github.com/lipealiseda/header-quality/blob/main/results/stage3_summary.md">resultados no GitHub</a> (em inglês).</p>
+
+  <h2 id="calibration">As probabilidades são honestas?</h2>
+  <p>Um modelo pode ordenar bem as finalizações e mesmo assim dar números errados, por exemplo dizendo que todo cabeceio tem 20% de chance quando a taxa real é 10%. A calibração verifica isso. Os cabeceios são divididos em dez grupos pela chance prevista, e a previsão média de cada grupo é comparada com a frequência com que esses cabeceios realmente entraram.</p>
+</div>
+
+<figure>
+  <img src="img/m1_xg_calibration.png" alt="Gráfico de calibração do xG de cabeça. Os dez grupos do modelo deste projeto ficam sobre a diagonal, de cerca de 2% a 35%. O xG da StatsBomb fica um pouco abaixo da diagonal entre 4% e 11%. A inclinação de calibração deste projeto é 0,94, de 0,88 a 1,01, e a da StatsBomb é 1,09, de 1,02 a 1,17." width="1350" height="900" loading="lazy">
+  <figcaption>Os cinco modelos foram verificados do mesmo jeito. Nenhum erra por mais de 1,7 ponto percentual em média nos seus grupos.</figcaption>
+</figure>
+
+<div class="col">
+  <p>Três inclinações têm intervalos que não incluem 1. O modelo de acerto no alvo é um pouco confiante demais (0,89), e os modelos de boosting para ganhar o duelo (1,04) e ficar com a bola (1,05) são um pouco cautelosos demais. As três diferenças são pequenas.</p>
+</div>
+
+<div class="col">
+  <h2 id="vs-statsbomb">Como o xG se compara com o da StatsBomb</h2>
+  <p>A StatsBomb publica o seu próprio xG profissional para cada finalização, então o modelo de cabeceios pode ser comparado com ele exatamente nos mesmos 10.327 cabeceios. A comparação é pareada, ou seja, os dois modelos são avaliados nos mesmos jogos reamostrados a cada vez, o que elimina o ruído que vem dos próprios jogos.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Medida</th><th class="num">Este projeto</th><th class="num">StatsBomb</th><th class="num">Diferença (intervalo de 95%)</th><th class="num">p</th></tr></thead>
+      <tbody>
+        <tr><td>AUC</td><td class="num">0,743</td><td class="num">0,749</td><td class="num">&minus;0,006 (&minus;0,014 a +0,003)</td><td class="num">0,20</td></tr>
+        <tr><td>Brier score</td><td class="num">0,0856</td><td class="num">0,0850</td><td class="num">+0,0006 (&minus;0,0001 a +0,0014)</td><td class="num">0,12</td></tr>
+        <tr><td>Previsão média (real 0,107)</td><td class="num">0,106</td><td class="num">0,111</td><td class="num"></td><td class="num"></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Os dois modelos não podem ser diferenciados na hora de ordenar cabeceios. O teste de DeLong para duas AUCs nos mesmos dados dá a mesma resposta (p = 0,18), mas ele supõe que cada finalização é independente, então o bootstrap por jogo é o resultado principal. Este modelo é o mais bem calibrado dos dois aqui, sem viés geral e com uma inclinação cujo intervalo inclui 1. Essa comparação o favorece um pouco, já que ele foi ajustado e testado nessas mesmas competições, enquanto o xG da StatsBomb é um modelo geral.</p>
+
+  <h2 id="importance">Como "o que importa" foi medido</h2>
+  <p>As tabelas de fatores nas páginas de ataque e de defesa usam importância por permutação. Um modelo é treinado com alguns jogos e, depois, nos jogos que ele não viu, uma informação é embaralhada ao acaso para não combinar mais com os resultados. A queda de precisão, medida como o aumento do log loss, mostra o quanto o modelo dependia daquela informação. As porcentagens são a queda de cada informação dividida pelo total.</p>
+  <p>Um detalhe muda a resposta. Informações que se sobrepõem precisam ser embaralhadas juntas. O modelo de duelos vê as alturas dos dois jogadores e a diferença entre elas, e embaralhar só a diferença deixa o modelo se apoiar nas alturas brutas. Medida desse jeito, a diferença de altura fica em terceiro, com 17%. Embaralhada como grupo, a altura fica em primeiro, com 30% (faixa de 26% a 35%), e ficou em primeiro nas 15 repetições, nas cinco partes. Uma segunda verificação treina o modelo de novo sem nenhuma informação de altura. A precisão cai de AUC 0,667 para 0,643, que é o que a altura acrescenta e que nada mais consegue substituir. Avaliando as duas versões nas mesmas 1.000 reamostragens de jogos, o ganho é de 0,024 (intervalo de 95% de 0,021 a 0,026), e o teste de DeLong concorda (p abaixo de 0,001).</p>
+  <p class="small">O gráfico de fatores da página de ataque ainda usa informações isoladas em uma parte separada, porque as suas informações se sobrepõem bem menos. A tabela completa por grupos está em <a href="https://github.com/lipealiseda/header-quality/blob/main/results/duel_importance.md">duel_importance.md</a> (em inglês).</p>
+
+  <h2 id="mixed">Uma segunda forma de ordenar os jogadores</h2>
+  <p>Os rankings de duelos usam Bayes empírico. As vitórias de cada jogador menos as vitórias esperadas são somadas e depois puxadas para a média de acordo com a quantidade de dados que ele tem. Uma alternativa padrão é um modelo de efeitos mistos, uma regressão logística que dá a cada jogador o seu próprio ajuste e estima todos juntos. Aqui, o log das chances de cada duelo é a previsão do modelo de duelos mais o ajuste do defensor menos o do atacante, supondo que os ajustes seguem uma distribuição normal.</p>
+  <p>A diferença na prática é o adversário. O Bayes empírico trata todo adversário como médio. O modelo misto sabe que ganhar de um jogador que também é forte pelo alto vale mais do que ganhar de um fraco. O modelo foi ajustado com a aproximação de Laplace, o mesmo método que o pacote lme4 do R usa por padrão. Ele foi testado antes em dados simulados com respostas conhecidas, onde recuperou uma variação real de 0,35 como 0,33, e as suas estimativas por jogador tiveram correlação de 0,92 com a verdade.</p>
+</div>
+
+<figure>
+  <img src="img/m2_glmm_vs_eb.png" alt="Gráfico de dispersão dos números de duelos pelo modelo misto contra o Bayes empírico para 512 jogadores, bem perto da diagonal. Jogadores que enfrentaram adversários mais fortes, como Chris Smalling e Angelo Ogbonna, ficam um pouco acima dela." width="1350" height="900" loading="lazy">
+</figure>
+
+<div class="col">
+  <p>Os dois métodos concordam muito. A correlação de postos é 0,988 (intervalo de 95% de 0,985 a 0,990), 0,976 entre defensores e 0,993 entre atacantes. Nove dos dez melhores defensores e todos os dez melhores atacantes são os mesmos. Quem sobe no modelo misto são os jogadores que enfrentaram adversários mais fortes pelo alto (correlação de 0,86 entre subir e a força do adversário), como o modelo pretende. Chris Smalling, por exemplo, sobe de 259º para 166º. O modelo misto também marca mais jogadores como claramente acima da média, 91 contra 64, porque parte do ruído vai para os adversários, mas todo jogador que o ranking principal marca como claramente acima da média é marcado pelos dois.</p>
+
+  <h2 id="data-checks">Verificando os dados</h2>
+  <p><strong>Por que 95.942 duelos viraram 93.684 linhas no modelo.</strong> Em 2.258 duelos (2,4%) não houve passe nos 6 segundos anteriores, por exemplo numa bola solta ou num cabeceio logo depois de outro cabeceio. Sem um time que mandou a bola, não há como dizer qual jogador estava defendendo, então esses duelos não entram no modelo de duelos.</p>
+  <p><strong>A questão do Barcelona.</strong> Algumas temporadas de clubes nos dados abertos acompanham um time só em todos os jogos, sobretudo o Barcelona. Os jogos do Barcelona são 20% de todos os jogos, mas só 13% dos duelos aéreos e 16% das finalizações de cabeça, já que têm em média 23 duelos aéreos por jogo contra 39 nos outros. Somando todas as temporadas de um time só (Barcelona, Paris Saint-Germain, Leverkusen, Arsenal 2003/04 e mais algumas), são 26% dos jogos e 18% dos duelos.</p>
+  <p>Isso é o bastante para fazer diferença, então o modelo de duelos foi ajustado de novo sem essas temporadas e os rankings foram refeitos do zero.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th></th><th class="num">Todos os dados</th><th class="num">Sem as temporadas de um time só</th></tr></thead>
+      <tbody>
+        <tr><td>Duelos no modelo</td><td class="num">93.684</td><td class="num">76.537</td></tr>
+        <tr><td>AUC do modelo de duelos</td><td class="num">0,667</td><td class="num">0,666</td></tr>
+        <tr><td>Jogadores com 100+ duelos</td><td class="num">512</td><td class="num">446</td></tr>
+        <tr><td>Confiabilidade dos duelos acima do esperado</td><td class="num">0,67 (0,59 a 0,74)</td><td class="num">0,67 (0,60 a 0,75)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Para os 446 jogadores ordenados das duas formas, a correlação de postos é 0,987, e 9 dos 10 melhores defensores não mudam. Os 66 jogadores que saem são sobretudo jogadores do Barcelona e seus adversários frequentes, como Carles Puyol e Dani Alves, que ficam abaixo de 100 duelos sem essas temporadas. Os resultados não dependem das temporadas de um time só.</p>
+
+  <h2>Erros encontrados no caminho</h2>
+  <p>Cada um destes teria feito os resultados parecerem melhores ou diferentes do que realmente são. Eles estão listados porque procurar por eles é a maior parte do trabalho.</p>
+  <ul>
+    <li><strong>Um duelo descrito pelo seu próprio resultado.</strong> Em 13% dos duelos aéreos, o "passe que chegou" escolhido de início era na verdade o cabeceio do próprio vencedor, porque a StatsBomb às vezes o registra primeiro. O modelo teria recebido o resultado. Agora os lances ligados são ignorados.</li>
+    <li><strong>Uma marcação que entregava a resposta.</strong> Cabeceios defensivos são registrados como passe quando chegam a um companheiro e como afastamento quando não chegam. Essa marcação foi tirada do modelo que prevê quem fica com a bola seguinte.</li>
+    <li><strong>Um sinal sem sentido no futebol.</strong> O primeiro modelo de xG de cabeça dizia que estar sob pressão tornava o gol um pouco mais provável. A marcação de pressão se sobrepõe à distância até o defensor mais perto, que o modelo já tinha. Nos dados brutos, cabeceios sob pressão viram gol cerca de metade das vezes em qualquer distância. A marcação foi retirada e a precisão não mudou.</li>
+    <li><strong>Alturas faltando contadas como talento.</strong> Jogadores sem altura registrada, como Luca Toni, com 193 cm, subiam nos rankings de duelos porque o modelo não sabia que eram altos. Os rankings de duelos agora incluem só jogadores com altura conhecida.</li>
+    <li><strong>Um vazamento no rastreamento.</strong> O primeiro teste de velocidade deu AUC de 0,90 em 38 duelos, bom demais para ser verdade. A Metrica registra o local do duelo na posição do próprio vencedor, então "correr em direção ao duelo" em parte queria dizer "ser o vencedor". Medida em direção à bola rastreada, a AUC caiu para 0,53.</li>
+  </ul>
+
+  <h2>Impulsão, força e velocidade explicam?</h2>
+  <p>Dados gratuitos não têm testes físicos, então dois testes à parte olharam para o que a altura não explica.</p>
+  <h3>Notas do EA FC</h3>
+  <p>Notas dos jogos FIFA 15 a 22 foram ligadas a 4.941 jogadores. Uma ligação era descartada quando a altura da EA diferia da do Transfermarkt em mais de 5 cm. Para os 483 jogadores com 100 ou mais duelos e uma ligação com a EA, cada nota foi correlacionada com ganhar mais duelos do que a altura prevê. Os intervalos vêm de reamostrar os jogadores 2.000 vezes.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Nota da EA</th><th class="num">Correlação de Spearman</th><th class="num">Intervalo de 95%</th></tr></thead>
+      <tbody>
+        <tr><td>Impulsão</td><td class="num">0,28</td><td class="num">0,19 a 0,36</td></tr>
+        <tr><td>Precisão de cabeceio</td><td class="num">0,18</td><td class="num">0,09 a 0,26</td></tr>
+        <tr><td>Força</td><td class="num">0,12</td><td class="num">0,03 a 0,22</td></tr>
+        <tr><td>Peso</td><td class="num">0,06</td><td class="num">&minus;0,03 a 0,15</td></tr>
+        <tr><td>Velocidade de arrancada</td><td class="num">0,03</td><td class="num">&minus;0,06 a 0,11</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Impulsão, cabeceio e força estão ligados a superar o esperado, enquanto peso e velocidade são compatíveis com nenhuma ligação. Numa regressão com as cinco juntas, só a impulsão fica claramente acima de zero. As cinco notas explicam 12% das diferenças entre jogadores (intervalo de 95% de 6% a 19%), então a maior parte do que faz alguém ser bom pelo alto não está nelas. Colocadas no modelo de duelos, elas elevam a AUC de 0,667 para 0,675.</p>
+  <p>As notas ficaram fora dos modelos principais de propósito. Se o valor esperado já soubesse a nota de cabeceio de um jogador, o ranking diria só quem supera a opinião da EA, e os olheiros da EA avaliam o cabeceio em parte assistindo aos mesmos cabeceios.</p>
+  <h3>Dados de rastreamento</h3>
+  <p>Em dois jogos da Metrica, 38 duelos aéreos tiveram os dois jogadores rastreados durante o segundo inteiro antes do contato. Velocidade, velocidade máxima, distância percorrida e movimento em direção à bola não apontaram o vencedor melhor do que cara ou coroa (AUC 0,53, com faixa de 95% de 0,34 a 0,73).</p>
+  <p>Um resultado nulo só quer dizer algo se o teste pudesse ter encontrado um efeito. Com 38 duelos, no nível usual de 5% e poder de 80%, os menores efeitos que esse teste detectaria com segurança são o vencedor levar vantagem em pelo menos 73% dos duelos, ou uma AUC real de cerca de 0,76. Então um efeito grande provavelmente teria aparecido, enquanto um modesto pode ter passado despercebido. As proporções observadas estreitam isso mais um pouco. O vencedor estava mais rápido no salto em 14 de 38 duelos, 37%, com intervalo de 95% de 23% a 53%, então nesses dois jogos os dados vão contra o jogador mais rápido ganhar nem mesmo 60% dos duelos. Para o movimento em direção à bola, o intervalo chega a 68%, e uma vantagem modesta ali não pode ser descartada. Dois jogos anônimos também não são uma amostra das ligas do estudo principal.</p>
+
+  <h2>Limites</h2>
+  <ul>
+    <li>A maior parte dos dados vem da temporada 2015/16 de quatro ligas, então os rankings descrevem aqueles anos mais do que hoje.</li>
+    <li>Força, alcance no salto e velocidade não são medidos, só aproximados por notas de videogame. O número acima do esperado de um jogador contém tudo isso ao mesmo tempo.</li>
+    <li>Só 47 jogadores têm 25 ou mais finalizações de cabeça. Por isso a confiabilidade da finalização de cabeça tem um intervalo tão largo, e por isso o talento na finalização não pode ser nem confirmado nem descartado.</li>
+    <li>As faixas dos jogadores tratam a variação de talento entre eles como conhecida, então ficam um pouco estreitas demais para jogadores perto da amostra mínima.</li>
+    <li>O modelo de duelos é útil, mas modesto. Contexto que ele não vê, como as jogadas ensaiadas de bola parada de um time, ainda pode estar escondido nos números dos jogadores.</li>
+    <li>Cerca de 18% dos duelos vêm de temporadas que acompanham um time só, sobretudo o Barcelona. Os rankings quase não mudam sem elas, mas jogadores que aparecem principalmente nessas temporadas não podem ser ordenados sem elas.</li>
+    <li>Os afastamentos não têm local final nos dados da StatsBomb, então onde um afastamento caiu é aproximado pelo lance seguinte.</li>
+  </ul>
+
+  <h2>Rode você mesmo</h2>
+  <p>Tudo neste site é produzido pelo código no <a href="https://github.com/lipealiseda/header-quality">GitHub</a>, publicado sob a licença MIT. Um comando, <code>python run_all.py</code>, roda todas as etapas em ordem com versões fixas dos pacotes, e um pequeno conjunto de testes confere as partes com mais chance de dar errado sem avisar, como nenhum jogo aparecer no treino e no teste ao mesmo tempo, nenhuma coluna de resultado entre as informações do modelo e nenhum valor faltando chegar aos modelos. Uma cópia nova do repositório foi rodada do começo ao fim e deu resultados idênticos. Os dados brutos da StatsBomb são baixados por um script em vez de guardados, como a licença exige.</p>
+</div>

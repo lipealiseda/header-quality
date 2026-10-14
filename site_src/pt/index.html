@@ -1,0 +1,64 @@
+<section class="hero">
+  <div>
+    <h1>Quem ganha pelo alto, e isso se repete?</h1>
+    <p class="lede">Um estudo de 10.327 finalizações de cabeça e 95.942 duelos aéreos com os dados abertos da StatsBomb. Ele pergunta o que faz um cabeceio funcionar no ataque e na defesa, quais jogadores cabeceiam melhor do que a situação prevê e quais dessas diferenças são talento de verdade.</p>
+    <p class="byline">Por Filipe Aliseda, estudante de estatística na Universidade da Flórida. <a href="https://github.com/lipealiseda/header-quality">Código no GitHub</a>.</p>
+  </div>
+  <svg viewBox="40 70 360 225" role="img" aria-labelledby="hero-t">
+    <title id="hero-t">Um cruzamento fazendo a curva para dentro da área em direção a um atacante e um defensor</title>
+    <g fill="none" stroke="#c9ccc6" stroke-width="1.5">
+      <line x1="8" y1="280" x2="392" y2="280"/>
+      <rect x="70" y="174" width="260" height="106"/>
+      <rect x="141" y="245" width="118" height="35"/>
+      <path d="M 152.5 174 A 59 59 0 0 1 247.5 174"/>
+    </g>
+    <rect x="176" y="280" width="48" height="8" fill="none" stroke="#18242f" stroke-width="2"/>
+    <circle cx="200" cy="209" r="2" fill="#c9ccc6"/>
+    <path class="cross-path" d="M 372 250 C 340 90, 250 70, 196 222" fill="none" stroke="#8a929a" stroke-width="1.5"/>
+    <ellipse cx="197" cy="236" rx="16" ry="4" fill="#18242f" opacity="0.08"/>
+    <circle cx="188" cy="232" r="8" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/>
+    <circle cx="207" cy="228" r="8" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+    <text x="150" y="226" font-family="Archivo, sans-serif" font-size="11" fill="#5a6570" text-anchor="end">atacante</text>
+    <text x="220" y="223" font-family="Archivo, sans-serif" font-size="11" fill="#5a6570">defensor</text>
+    <line x1="152" y1="229" x2="178" y2="231" stroke="#c9ccc6" stroke-width="1"/>
+    <circle class="ball" r="5.5" fill="#fff" stroke="#18242f" stroke-width="2"/>
+  </svg>
+</section>
+
+<section class="summary" aria-labelledby="sum-t">
+  <h2 id="sum-t">Para olheiros, em um minuto</h2>
+  <ol class="sum-list">
+    <li>
+      <p class="sum-head">Observe os duelos aéreos ganhos acima do esperado. É um talento real, que se repete.</p>
+      <p>O número de um jogador em metade dos seus jogos prevê bem a outra metade, mesmo depois de levar em conta altura, posição, o tipo de bola e o local do campo.</p>
+      <p class="sum-num">Confiabilidade 0,67 <span>(intervalo de 95% de 0,59 a 0,74)</span></p>
+    </li>
+    <li>
+      <p class="sum-head">A altura decide quem ganha a bola pelo alto, e depois deixa de importar.</p>
+      <p>É o fator que mais pesa nos duelos aéreos, mas jogadores mais altos não marcam mais gols de cabeça do que as suas chances preveem.</p>
+      <p class="sum-num">O defensor ganha 76% quando é 10+ cm mais alto e 39% quando é 10+ cm mais baixo <span>(intervalos de 95% de 75 a 77% e de 38 a 40%)</span></p>
+    </li>
+    <li>
+      <p class="sum-head">Não julgue a finalização de cabeça com dados gratuitos.</p>
+      <p>Gols acima do xG de cabeça não mostram sinal de talento, mas só 47 jogadores têm finalizações de cabeça suficientes para o teste, então um talento moderado também não pode ser descartado.</p>
+      <p class="sum-num">Confiabilidade perto de 0 <span>(intervalo de 95% de abaixo de 0 a 0,53)</span></p>
+    </li>
+  </ol>
+  <p class="sum-foot">Os dados são sobretudo da temporada 2015/16 da Premier League, La Liga, Serie A e Ligue 1. Os rankings de jogadores com as suas faixas estão no <a href="rankings.html">capítulo 5</a>.</p>
+</section>
+
+<div class="col">
+  <h2>Como ler este site</h2>
+  <p>Cada capítulo parte do anterior, e cada um leva uns cinco minutos. Se você só tem cinco minutos, leia o capítulo 4.</p>
+  <ol class="toc">
+    <li><span class="n">1</span><a href="data.html">Os dados</a><p>O que os dados gratuitos de futebol contêm, quais fatores dá para medir e como as alturas dos jogadores foram ligadas.</p></li>
+    <li><span class="n">2</span><a href="attack.html">Cabeceios no ataque</a><p>Um modelo de gols esperados para cabeceios, de onde saem os gols de cabeça e por que escanteios geram chances ruins.</p></li>
+    <li><span class="n">3</span><a href="defense.html">Cabeceios na defesa</a><p>O que decide um duelo aéreo, e o quanto um afastamento é perigoso dependendo de onde acontece.</p></li>
+    <li><span class="n">4</span><a href="skill.html">Talento ou sorte</a><p>Como cada ranking foi testado para ver se mede algo real.</p></li>
+    <li><span class="n">5</span><a href="rankings.html">Rankings</a><p>Busque e ordene 512 jogadores pelos duelos aéreos ganhos acima do esperado.</p></li>
+    <li><span class="n">6</span><a href="method.html">Método e limites</a><p>Os modelos, como foram verificados, os erros encontrados no caminho e o que os dados gratuitos não conseguem dizer.</p></li>
+  </ol>
+
+  <h2>Por que cabeceios</h2>
+  <p>Cabeceios decidem boa parte das bolas paradas, e os clubes pagam por jogadores que são bons pelo alto. Mesmo assim, os números de sempre, como a taxa de duelos aéreos ganhos, misturam talento com situação. Um zagueiro alto que disputa sobretudo tiros de meta longos vai ganhar muitos duelos sem ser especial. Este projeto compara cada cabeceio com o que um jogador médio teria feito no mesmo lugar e depois verifica se a diferença se sustenta.</p>
+</div>

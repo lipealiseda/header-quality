@@ -1,0 +1,69 @@
+<div class="page-title">
+  <p class="chapter-no">Capítulo 5</p>
+  <h1>Ranking de jogadores</h1>
+  <p class="lede">Todos os jogadores com pelo menos 100 duelos aéreos e altura conhecida, ordenados pelos duelos ganhos acima do que o modelo esperava. É a única métrica de jogo aéreo que passou no teste de confiabilidade do capítulo 4.</p>
+</div>
+
+<div class="col">
+  <h2>Como ler a tabela</h2>
+  <p><strong>Acima do esperado</strong> são os duelos extras ganhos a cada 100, depois de puxar o número para a média. O modelo por trás já sabe a altura dos dois jogadores, as posições, o tipo de bola e o local, então um número alto quer dizer que o jogador ganha mais do que o seu tamanho e a situação explicam.</p>
+  <p>A <strong>faixa de 95%</strong> mostra onde o número real dele provavelmente está. Ela vem do mesmo modelo estatístico do encolhimento. Quando a faixa inteira fica de um lado da linha do meio, o jogador está claramente acima ou abaixo da média. Dos 228 defensores, 18 estão claramente acima e 8 claramente abaixo. Os outros não podem ser separados da média com essa quantidade de dados.</p>
+  <p>A <strong>faixa de posição</strong> responde a uma pergunta parecida. Se a temporada fosse repetida muitas vezes, com o talento real de cada jogador sorteado dentro da sua faixa, onde ele terminaria? O melhor defensor, Konstantinos Manolas, pode estar em qualquer lugar entre o 1º e o 32º. Jogadores próximos na tabela em geral não podem ser ordenados com segurança.</p>
+  <p class="small">As faixas tratam a variação de talento entre os jogadores como conhecida, então ficam um pouco estreitas demais para jogadores perto do mínimo de 100 duelos. A maioria dos duelos é da temporada 2015/16, então os clubes refletem aquela época.</p>
+
+  <h2>Compare dois jogadores</h2>
+  <div class="compare">
+    <label>Primeiro jogador
+      <input id="cmp-a" list="players" type="text" autocomplete="off" placeholder="por exemplo Manolas" value="Konstantinos Manolas (AS Roma)">
+    </label>
+    <label>Segundo jogador
+      <input id="cmp-b" list="players" type="text" autocomplete="off" placeholder="por exemplo Lovren" value="Dejan Lovren (Liverpool)">
+    </label>
+    <datalist id="players"></datalist>
+    <p id="cmp-out" class="cmp-out" aria-live="polite"></p>
+  </div>
+</div>
+
+<div class="wide">
+  <h2>Todos os jogadores</h2>
+  <div class="controls">
+    <label>Busque um jogador ou clube
+      <input id="q" type="search" placeholder="por exemplo Manolas ou Roma" autocomplete="off">
+    </label>
+    <label>Posição
+      <select id="pos">
+        <option value="def">Defensores</option>
+        <option value="fwd">Atacantes</option>
+        <option value="mid">Meio-campistas</option>
+        <option value="all">Todas as posições</option>
+      </select>
+    </label>
+    <span class="count" id="count" aria-live="polite"></span>
+  </div>
+  <div class="table-wrap">
+    <table id="duels">
+      <thead>
+        <tr>
+          <th class="num" scope="col">#</th>
+          <th scope="col"><button data-k="name">Jogador</button></th>
+          <th scope="col"><button data-k="club">Clube principal</button></th>
+          <th scope="col"><button data-k="pos">Posição</button></th>
+          <th class="num" scope="col"><button data-k="h">Altura (cm)</button></th>
+          <th class="num" scope="col"><button data-k="n">Duelos</button></th>
+          <th class="num" scope="col"><button data-k="won">Ganhos de esperados</button></th>
+          <th class="num" scope="col" aria-sort="descending"><button data-k="above">Acima do esperado, a cada 100</button></th>
+          <th scope="col" class="bar-cell">Faixa de 95%</th>
+          <th class="num" scope="col" id="rr-head">Faixa de posição de 95%</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <button class="more" id="more" type="button">Mostrar todos os jogadores</button>
+  <noscript><p>A tabela precisa de JavaScript. Os mesmos dados estão em <a href="https://github.com/lipealiseda/header-quality/blob/main/results/rank_duels_vs_expected.csv">rank_duels_vs_expected.csv</a> no GitHub.</p></noscript>
+</div>
+
+<div class="col">
+  <h2>Outros rankings</h2>
+  <p>Os rankings de cabeceios no alvo, gols de cabeça menos xG e qualidade dos afastamentos estão nos <a href="https://github.com/lipealiseda/header-quality/blob/main/results/stage4_rankings.md">resultados completos no GitHub</a> (em inglês). Eles ficam fora desta página de propósito, porque o capítulo 4 mostrou que trazem pouco sinal confiável com as amostras atuais.</p>
+</div>

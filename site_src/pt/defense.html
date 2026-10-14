@@ -1,0 +1,59 @@
+<div class="page-title">
+  <p class="chapter-no">Capítulo 3</p>
+  <h1>Cabeceios na defesa</h1>
+  <p class="lede">Quem ganha os duelos aéreos, e o que torna um cabeceio defensivo realmente seguro?</p>
+</div>
+
+<div class="col">
+  <h2>A altura vem primeiro</h2>
+  <p>A StatsBomb registra o perdedor de cada duelo aéreo e o liga ao vencedor, então os dois jogadores e as duas alturas são conhecidos. Isso permite fazer a pergunta mais simples diretamente.</p>
+</div>
+
+<figure>
+  <img src="img/d1_height_and_duels.png" alt="Gráfico de linha subindo de cerca de 32% quando o defensor é 20 cm mais baixo para cerca de 82% quando é 20 cm mais alto. Com a mesma altura, o defensor ganha 59%." width="1350" height="900" loading="lazy">
+  <figcaption>Cada 2 cm a mais de altura somam mais ou menos 2 a 3 pontos à chance de o defensor ganhar.</figcaption>
+</figure>
+
+<div class="col">
+  <p>Quando o defensor é mais de 10 cm mais baixo que o atacante, ele ganha 39% dos duelos. Quando é mais de 10 cm mais alto, ganha 76%. Mesmo com a mesma altura, o defensor ganha 59%. Os dados não dizem por quê, mas um motivo provável é que os defensores costumam estar de frente para a bola quando ela chega, enquanto os atacantes muitas vezes precisam girar ou correr até ela.</p>
+
+  <h2>O que decide um duelo</h2>
+  <p>Um modelo treinado com 93.684 duelos e testado em jogos que não tinha visto foi analisado para ver o quanto depende de cada tipo de informação. O método é simples. Embaralha-se um tipo de informação ao acaso para que ela não combine mais com os duelos, e mede-se o quanto as previsões pioram. Informações que se sobrepõem, como as alturas dos dois jogadores e a diferença entre elas, são embaralhadas juntas, e o teste é repetido 15 vezes em diferentes jogos separados.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>O que foi embaralhado</th><th class="num">Parte da precisão do modelo</th><th class="num">Faixa nos 15 testes</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td>Altura dos dois jogadores e a diferença</td><td class="num">30%</td><td class="num">26% a 35%</td></tr>
+        <tr><td>Onde o duelo acontece</td><td class="num">17%</td><td class="num">14% a 19%</td></tr>
+        <tr><td>De onde a bola saiu</td><td class="num">16%</td><td class="num">11% a 19%</td></tr>
+        <tr><td>Posições dos dois jogadores</td><td class="num">14%</td><td class="num">12% a 18%</td></tr>
+        <tr><td>Tipo e trajetória da bola</td><td class="num">12%</td><td class="num">10% a 15%</td></tr>
+        <tr><td>Fase do jogo, como um tiro de meta ou um escanteio</td><td class="num">10%</td><td class="num">8% a 12%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>A altura ficou em primeiro nos 15 testes. Uma versão anterior desta página dizia que a altura era o terceiro fator mais importante, porque embaralhava só a diferença de altura enquanto o modelo ainda via as duas alturas. A <a href="method.html#importance">página de Método</a> mostra as duas versões.</p>
+  <p>Colocar a altura elevou a precisão do modelo (AUC) de 0,643 para 0,667. As duas versões foram avaliadas nos mesmos jogos reamostrados, então a incerteza é medida no próprio ganho. O ganho é de 0,024, com intervalo de 95% de 0,021 a 0,026, e em nenhuma das 1.000 reamostragens a altura deixou de ajudar. Parece pouco, mas duelos são quase cara ou coroa por natureza, então qualquer vantagem confiável conta. O modelo ainda deixa muita coisa sem explicação, e parte disso é talento individual, que o capítulo 4 mede.</p>
+
+  <h2>Onde você afasta é o que mais importa</h2>
+  <p>Um bom cabeceio defensivo faz mais do que ganhar a bola. Ele precisa impedir que o adversário finalize logo depois. Para 75.968 cabeceios defensivos, o modelo verifica se o outro time finalizou em até 10 segundos.</p>
+</div>
+
+<figure class="narrow">
+  <img src="img/d2_clearance_danger_map.png" alt="Mapa do próprio campo de defesa pintado pela chance de o adversário finalizar em até 10 segundos depois de um cabeceio defensivo. Dentro da área a chance fica perto de 14%, mais escura perto da pequena área, e cai para menos de 3% fora da área." width="1350" height="1050" loading="lazy">
+</figure>
+
+<div class="col">
+  <p>Um cabeceio feito dentro da própria área é seguido de uma finalização adversária 14% das vezes. Fora da área, menos de 3%. A distância do gol explica cerca de três quartos do que esse modelo sabe. O defensor em si parece importar bem menos, já que o quanto os afastamentos de um jogador evitam perigo quase não se repete de um conjunto de jogos para outro.</p>
+
+  <h3>Ficar com a bola</h3>
+  <p>Depois de um cabeceio defensivo, o time que defende ganha a bola seguinte 45% das vezes. Uma armadilha foi evitada aqui. A StatsBomb costuma registrar um cabeceio como passe quando ele chega a um companheiro e como afastamento quando não chega, então usar essa marcação teria dado a resposta ao modelo sem ninguém perceber. Ela ficou de fora.</p>
+
+  <h2>Quem é bom pelo alto</h2>
+  <p>Quando o modelo já sabe a altura dos dois jogadores, o tipo de bola, o local e as posições, qualquer jogador que ainda ganhe mais duelos do que o esperado está fazendo algo que a situação não explica.</p>
+</div>
+
+<figure>
+  <img src="img/d3_best_defenders_in_the_air.png" alt="Gráfico de pontos dos 10 melhores e dos 5 piores defensores em duelos aéreos ganhos acima do esperado a cada 100, com faixas de 95% e faixas de posição. Konstantinos Manolas lidera com mais 12,3, faixa de posição de 1 a 32. Daley Blind é o mais baixo, com menos 14,4, faixa de posição de 218 a 228." width="1350" height="1050" loading="lazy">
+  <figcaption>Cada linha é uma faixa de 95% para o número real do jogador, e a faixa de posição à direita mostra onde ele pode estar de verdade entre os 228 defensores. Manolas é o primeiro, mas qualquer lugar entre 1º e 32º é compatível com os dados. Procure qualquer jogador na <a href="rankings.html">página de rankings</a>.</figcaption>
+</figure>

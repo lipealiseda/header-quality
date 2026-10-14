@@ -268,3 +268,10 @@ td.num { white-space: nowrap; }
   .summary { padding: 1.1rem 1.1rem 1rem; }
 }
 code { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-size: 0.88em; background: var(--blue-wash); padding: 0.08em 0.35em; border-radius: 4px; }
+
+/* language switch next to the site name */
+.brand-row { display: flex; align-items: baseline; gap: 0.9rem; }
+.lang-switch { display: inline-flex; gap: 0.15rem; font-family: var(--sans); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em; }
+.lang-switch a { color: var(--ink-3); text-decoration: none; padding: 0.1rem 0.35rem; border-radius: 4px; }
+.lang-switch a:hover { color: var(--ink); background: var(--blue-wash); }
+.lang-switch a[aria-current] { color: var(--ink); background: var(--blue-wash); }

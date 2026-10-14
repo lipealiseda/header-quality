@@ -1,5 +1,11 @@
-"""Stage 6. The eight charts for the README and write up, four on attack and four on
-defense. Every chart carries the StatsBomb logo, as their open data licence asks.
+"""Stage 6. The charts for the README, write up and website. Every chart carries the
+StatsBomb logo, as their open data licence asks.
+
+Charts are drawn twice, in English (figures/) and in Brazilian Portuguese
+(figures/pt/) for the Portuguese website. Text goes through T(), which looks up the
+Portuguese version of each English template in chart_text.py and fails loudly if
+one is missing, and numbers go through N(), which uses a decimal comma and a
+thousands point in Portuguese.
 
 Colours follow one small palette (blue for the main series, orange for the second
 or for "below expected", grays for everything else) checked for colour blind
@@ -18,9 +24,11 @@ from matplotlib.patches import Arc, Rectangle  # noqa: E402
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from modeling import PROC, RES, ROOT  # noqa: E402
 from stage4_report import NICE  # noqa: E402
+from chart_text import NICE_PT, PT  # noqa: E402
 
 FIG = ROOT / "figures"
 FIG.mkdir(exist_ok=True)
+LANG = "en"  # switched by main()
 LOGO = plt.imread(ROOT / "assets" / "statsbomb_logo.png")
 
 SURFACE, INK, INK2, MUTED, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#8a8984", "#e4e3df"
@@ -34,6 +42,40 @@ plt.rcParams.update({
     "xtick.color": INK2, "ytick.color": INK2, "axes.edgecolor": GRID, "axes.linewidth": 0.8,
     "xtick.major.size": 0, "ytick.major.size": 0, "axes.spines.top": False, "axes.spines.right": False,
 })
+
+
+# ----------------------------------------------------------------------------- language
+def T(text):
+    """English template, or its Portuguese version when drawing the pt charts."""
+    if LANG == "en":
+        return text
+    if text not in PT:
+        raise KeyError(f"missing Portuguese chart text: {text!r}")
+    return PT[text]
+
+
+def N(value, spec=""):
+    """Format a number, with a decimal comma and a thousands point in Portuguese."""
+    out = format(value, spec)
+    if LANG == "pt":
+        out = out.replace(",", "\x00").replace(".", ",").replace("\x00", ".")
+    return out
+
+
+def feature_name(f):
+    return (NICE_PT if LANG == "pt" else NICE).get(f, f)
+
+
+def pct_axis(ax, which="x"):
+    axis = ax.xaxis if which == "x" else ax.yaxis
+    axis.set_major_formatter(matplotlib.ticker.PercentFormatter(1, decimals=0))
+
+
+def dec_axis(ax, which="x", spec="g"):
+    """Plain decimal tick labels, with a decimal comma in Portuguese."""
+    if LANG == "pt":
+        axis = ax.xaxis if which == "x" else ax.yaxis
+        axis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: N(v, spec).replace("-", "\u2212")))
 
 
 # ----------------------------------------------------------------------------- frame
@@ -50,9 +92,11 @@ def frame(title, subtitle, source, size=(9, 6)):
 
 
 def save(fig, name):
-    fig.savefig(FIG / f"{name}.png", dpi=150)
+    out = FIG if LANG == "en" else FIG / LANG
+    out.mkdir(exist_ok=True)
+    fig.savefig(out / f"{name}.png", dpi=150)
     plt.close(fig)
-    print("saved", name)
+    print("saved", LANG, name)
 
 
 def grid_y(ax):
@@ -110,9 +154,9 @@ SRC = "Data StatsBomb open data, 2,651 men's matches (mostly the 2015/16 top 4 l
 def a1_xg_map():
     s = pd.read_csv(PROC / "headed_shots.csv.gz", low_memory=False)
     s = s[s["shot_type"] != "Penalty"]
-    fig = frame("Where headers become goals",
-                "Share of headed shots that are scored, by location. Inside the six yard box about 1 in 5 go in,\n"
-                "around the penalty spot about 1 in 16, from the edge of the box about 1 in 25.", SRC, size=(9, 5.4))
+    fig = frame(T("Where headers become goals"),
+                T("Share of headed shots that are scored, by location. Inside the six yard box about 1 in 5 go in,\n"
+                  "around the penalty spot about 1 in 16, from the edge of the box about 1 in 25."), T(SRC), size=(9, 5.4))
     ax = fig.add_axes([0.03, 0.10, 0.76, 0.70])
     box_pitch(ax, x0=96)
     # vertical pitch: horizontal axis is StatsBomb y, vertical is StatsBomb x
@@ -126,8 +170,9 @@ def a1_xg_map():
     cb.outline.set_visible(False)
     cb.set_ticks([0, 0.1, 0.2, 0.3, 0.4])
     cb.set_ticklabels(["0%", "10%", "20%", "30%", "40%+"])
-    cax.set_title("Goal rate", fontsize=9, color=INK2, loc="left", pad=8)
-    fig.text(0.83, 0.13, f"{len(s):,} headed shots.\nCells with fewer than\n12 shots are hidden.", fontsize=8, color=MUTED)
+    cax.set_title(T("Goal rate"), fontsize=9, color=INK2, loc="left", pad=8)
+    fig.text(0.83, 0.13, T("{n} headed shots.\nCells with fewer than\n12 shots are hidden.").format(n=N(len(s), ",")),
+             fontsize=8, color=MUTED)
     save(fig, "a1_header_goal_map")
 
 
@@ -140,28 +185,29 @@ def a2_delivery():
                                                               ot=("on_target", "sum"))
     g["gr"], g["otr"] = g["goals"] / g["n"], g["ot"] / g["n"]
     g = g.sort_values("gr")
-    fig = frame("Corners and long balls make the worst headed chances",
-                "Goal rate and on target rate of headed shots by how the ball arrived. Lines are 95% intervals.\n"
-                "Corner headers face 8.6 defenders in the box on average (5.9 otherwise) and 63% are under pressure.", SRC)
+    fig = frame(T("Corners and long balls make the worst headed chances"),
+                T("Goal rate and on target rate of headed shots by how the ball arrived. Lines are 95% intervals.\n"
+                  "Corner headers face 8.6 defenders in the box on average (5.9 otherwise) and 63% are under pressure."),
+                T(SRC))
     ax = fig.add_axes([0.30, 0.13, 0.64, 0.68])
     y = np.arange(len(g))
-    for col, k, color, label, off in (("gr", "goals", BLUE, "Scored", 0.14), ("otr", "ot", ORANGE, "On target", -0.14)):
+    for col, k, color, label, off in (("gr", "goals", BLUE, T("Scored"), 0.14), ("otr", "ot", ORANGE, T("On target"), -0.14)):
         lo, hi = wilson(g[k].values, g["n"].values)
         ax.hlines(y + off, lo, hi, color=color, lw=2, alpha=0.45)
         ax.scatter(g[col], y + off, s=55, color=color, zorder=3, label=label, edgecolors=SURFACE, linewidths=1.5)
     lo_g, hi_g = wilson(g["goals"].values, g["n"].values)
     lo_o, hi_o = wilson(g["ot"].values, g["n"].values)
     for i, (idx, r) in enumerate(g.iterrows()):
-        ax.text(hi_o[i] + 0.01, i - 0.14, f"{r['otr']:.0%}", va="center", fontsize=8.5, color=INK2)
-        ax.text(hi_g[i] + 0.01, i + 0.14, f"{r['gr']:.0%}", va="center", fontsize=8.5, color=INK2)
+        ax.text(hi_o[i] + 0.01, i - 0.14, N(r['otr'], ".0%"), va="center", fontsize=8.5, color=INK2)
+        ax.text(hi_g[i] + 0.01, i + 0.14, N(r['gr'], ".0%"), va="center", fontsize=8.5, color=INK2)
     ax.set_yticks(y)
-    ax.set_yticklabels([f"{names[i]}  ({n:,})" for i, n in zip(g.index, g["n"])], fontsize=9.5, color=INK)
-    ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1, decimals=0))
+    ax.set_yticklabels([f"{T(names[i])}  ({N(n, ',')})" for i, n in zip(g.index, g["n"])], fontsize=9.5, color=INK)
+    pct_axis(ax, "x")
     ax.set_xlim(0, 0.72)
     ax.spines["left"].set_visible(False)
     grid_x(ax)
     ax.legend(loc="lower right", frameon=False, fontsize=9)
-    fig.text(0.30, 0.815, "Delivery type  (headed shots)", fontsize=8.5, color=MUTED, ha="right")
+    fig.text(0.30, 0.815, T("Delivery type  (headed shots)"), fontsize=8.5, color=MUTED, ha="right")
     save(fig, "a2_delivery_type")
 
 
@@ -172,20 +218,20 @@ def drivers_panel(ax, name, title, color, title_x):
     y = np.arange(len(t))
     ax.barh(y, t["share"], color=color, height=0.62)
     for i, v in enumerate(t["share"]):
-        ax.text(v + 0.008, i, f"{v:.0%}", va="center", fontsize=8.5, color=INK2)
+        ax.text(v + 0.008, i, N(v, ".0%"), va="center", fontsize=8.5, color=INK2)
     ax.set_yticks(y)
-    ax.set_yticklabels([NICE.get(f, f) for f in t["feature"]], fontsize=9, color=INK)
+    ax.set_yticklabels([feature_name(f) for f in t["feature"]], fontsize=9, color=INK)
     ax.set_xlim(0, t["share"].max() * 1.25)
     ax.set_xticks([])
     ax.spines["bottom"].set_visible(False)
     ax.spines["left"].set_visible(False)
-    ax.figure.text(title_x, 0.80, title, fontsize=10.5, color=INK, fontweight="bold", ha="left")
+    ax.figure.text(title_x, 0.80, T(title), fontsize=10.5, color=INK, fontweight="bold", ha="left")
 
 
 def a3_drivers():
-    fig = frame("Location decides goals, the delivery shapes accuracy",
-                "Share of each model's accuracy lost when one factor is scrambled (permutation importance,\n"
-                "gradient boosting, tested on held out matches). Height did not make either list.", SRC)
+    fig = frame(T("Location decides goals, the delivery shapes accuracy"),
+                T("Share of each model's accuracy lost when one factor is scrambled (permutation importance,\n"
+                  "gradient boosting, tested on held out matches). Height did not make either list."), T(SRC))
     drivers_panel(fig.add_axes([0.31, 0.14, 0.16, 0.62]), "xg", "What makes a header a goal", BLUE, 0.06)
     drivers_panel(fig.add_axes([0.79, 0.14, 0.16, 0.62]), "xot", "What puts it on target", BLUE, 0.55)
     save(fig, "a3_attack_drivers")
@@ -197,10 +243,10 @@ def a4_finishing():
     q = g[g["qualified"]].copy()
     q["gmx"] = q["actual"] - q["expected"]
     rg = rel.loc["goals_vs_xg"]
-    fig = frame("Headed finishing shows no clear skill signal",
-                f"Goals vs expected goals on headers for the {len(q)} players with 25+ headed shots. Reliability is about\n"
-                f"zero (95% interval below 0 to {rg['rel_ci_hi']:.2f}), so with this few players moderate skill cannot be ruled out.",
-                SRC)
+    fig = frame(T("Headed finishing shows no clear skill signal"),
+                T("Goals vs expected goals on headers for the {n} players with 25+ headed shots. Reliability is about\n"
+                  "zero (95% interval below 0 to {hi}), so with this few players moderate skill cannot be ruled out.")
+                .format(n=len(q), hi=N(rg['rel_ci_hi'], ".2f")), T(SRC))
     ax = fig.add_axes([0.09, 0.13, 0.62, 0.70])
     m = max(q["expected"].max(), q["actual"].max()) + 1
     xs = np.linspace(0, m, 50)
@@ -214,16 +260,16 @@ def a4_finishing():
     lab = pd.concat([q.nlargest(4, "gmx"), q.nsmallest(2, "gmx"), q.nlargest(2, "expected")]).drop_duplicates("player_id")
     for r in lab.itertuples():
         ax.annotate(r.name, (r.expected, r.actual), xytext=(6, 4), textcoords="offset points", fontsize=8.5, color=INK)
-    ax.set_xlabel("Expected headed goals (model)")
-    ax.set_ylabel("Actual headed goals")
+    ax.set_xlabel(T("Expected headed goals (model)"))
+    ax.set_ylabel(T("Actual headed goals"))
     ax.set_xlim(0, m)
     ax.set_ylim(0, m)
     grid_y(ax)
-    fig.text(0.74, 0.62, "Gray band", fontsize=9, fontweight="bold", color=INK)
-    fig.text(0.74, 0.40, "Where 90% of players\nwould land if every\nheader were a coin flip\nat its xG.\n\n"
-             f"{outside} of {len(q)} players fall\noutside it. Luck alone\nwould put about {0.1 * len(q):.0f} there.",
-             fontsize=9, color=INK2)
-    fig.text(0.74, 0.30, "Dot size = headed shots", fontsize=8.5, color=MUTED)
+    fig.text(0.74, 0.62, T("Gray band"), fontsize=9, fontweight="bold", color=INK)
+    fig.text(0.74, 0.40, T("Where 90% of players\nwould land if every\nheader were a coin flip\nat its xG.\n\n"
+                           "{out} of {n} players fall\noutside it. Luck alone\nwould put about {exp} there.")
+             .format(out=outside, n=len(q), exp=N(0.1 * len(q), ".0f")), fontsize=9, color=INK2)
+    fig.text(0.74, 0.30, T("Dot size = headed shots"), fontsize=8.5, color=MUTED)
     save(fig, "a4_finishing_is_luck")
 
 
@@ -238,38 +284,38 @@ def d1_height():
     t = k.groupby("b")["def_won"].agg(["sum", "size"]).reset_index()
     t["rate"] = t["sum"] / t["size"]
     lo, hi = wilson(t["sum"].values, t["size"].values)
-    fig = frame("Every few centimetres changes the aerial duel",
-                "Share of aerial duels won by the defending player, by how much taller he is than the attacker.\n"
-                "Band is the 95% interval. Ends are capped at 20 cm.", SRC)
+    fig = frame(T("Every few centimetres changes the aerial duel"),
+                T("Share of aerial duels won by the defending player, by how much taller he is than the attacker.\n"
+                  "Band is the 95% interval. Ends are capped at 20 cm."), T(SRC))
     ax = fig.add_axes([0.10, 0.14, 0.84, 0.68])
     ax.fill_between(t["b"], lo, hi, color=BLUE, alpha=0.15, lw=0)
     ax.plot(t["b"], t["rate"], color=BLUE, lw=2)
     ax.scatter(t["b"], t["rate"], s=22, color=BLUE, zorder=3, edgecolors=SURFACE, linewidths=1)
     ax.axvline(0, color=GRID, lw=1)
     ax.axhline(0.5, color=GRID, lw=1)
-    ax.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1, decimals=0))
-    ax.set_xlabel("Defender height minus attacker height (cm)")
-    ax.set_ylabel("Defender wins the duel")
+    pct_axis(ax, "y")
+    ax.set_xlabel(T("Defender height minus attacker height (cm)"))
+    ax.set_ylabel(T("Defender wins the duel"))
     for b, txt, dy in ((-10, None, 0), (10, None, 0)):
         r = t[t["b"] == b].iloc[0]
-        ax.annotate(f"{r['rate']:.0%}", (b, r["rate"]), xytext=(0, 12 if b > 0 else -18), textcoords="offset points",
+        ax.annotate(N(r['rate'], ".0%"), (b, r["rate"]), xytext=(0, 12 if b > 0 else -18), textcoords="offset points",
                     ha="center", fontsize=10, fontweight="bold", color=INK)
-    ax.text(-19.5, 0.505, "coin flip", fontsize=8.5, color=MUTED, va="bottom")
+    ax.text(-19.5, 0.505, T("coin flip"), fontsize=8.5, color=MUTED, va="bottom")
     grid_y(ax)
     r0 = t[t["b"] == 0].iloc[0]
-    ax.annotate(f"Same height: defender still wins {r0['rate']:.0%}", (0, r0["rate"]), xytext=(10, -26),
+    ax.annotate(T("Same height: defender still wins {p}").format(p=N(r0['rate'], ".0%")), (0, r0["rate"]), xytext=(10, -26),
                 textcoords="offset points", fontsize=9, color=INK2,
                 arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
-    ax.text(-20.5, 0.83, f"{len(k):,} duels with both heights known", fontsize=8.5, color=MUTED)
+    ax.text(-20.5, 0.83, T("{n} duels with both heights known").format(n=N(len(k), ",")), fontsize=8.5, color=MUTED)
     save(fig, "d1_height_and_duels")
 
 
 def d2_danger_map():
     f = pd.read_csv(PROC / "defensive_headers.csv.gz", low_memory=False)
     f = f[f["x"] <= 60]
-    fig = frame("Clear it far from your own goal",
-                "Chance the opponent gets a shot within 10 seconds of a defensive header, by where the header\n"
-                "was made. Own goal at the bottom.", SRC, size=(9, 7))
+    fig = frame(T("Clear it far from your own goal"),
+                T("Chance the opponent gets a shot within 10 seconds of a defensive header, by where the header\n"
+                  "was made. Own goal at the bottom."), T(SRC), size=(9, 7))
     ax = fig.add_axes([0.06, 0.09, 0.72, 0.76])
     own_half(ax)
     # draw own goal at the bottom: vertical axis is StatsBomb x, horizontal is y
@@ -282,8 +328,8 @@ def d2_danger_map():
     cb.outline.set_visible(False)
     cb.set_ticks([0, 0.05, 0.10, 0.15, 0.20, 0.25])
     cb.set_ticklabels(["0%", "5%", "10%", "15%", "20%", "25%+"])
-    cax.set_title("Opponent shot\nwithin 10 s", fontsize=9, color=INK2, loc="left", pad=8)
-    fig.text(0.82, 0.22, f"{len(f):,} defensive headers\nCells with fewer than\n40 headers are hidden", fontsize=8, color=MUTED)
+    cax.set_title(T("Opponent shot\nwithin 10 s"), fontsize=9, color=INK2, loc="left", pad=8)
+    fig.text(0.82, 0.22, T("{n} defensive headers\nCells with fewer than\n40 headers are hidden").format(n=N(len(f), ",")), fontsize=8, color=MUTED)
     save(fig, "d2_clearance_danger_map")
 
 
@@ -292,33 +338,33 @@ def d3_defenders():
     q = r[r["qualified"] & r["pos_group"].isin(["CB", "FB"])]
     top, bot = q.nlargest(10, "shrunk_rate"), q.nsmallest(5, "shrunk_rate").iloc[::-1]
     t = pd.concat([bot, top.iloc[::-1]])
-    fig = frame("Defenders who win more headers than their height says",
-                f"Aerial duels won above or below expected per 100, for {len(q)} defenders with 100+ duels. Lines are\n"
-                f"95% ranges. The rank range shows where each could really sit among all {len(q)}.",
-                SRC, size=(9, 7))
+    fig = frame(T("Defenders who win more headers than their height says"),
+                T("Aerial duels won above or below expected per 100, for {n} defenders with 100+ duels. Lines are\n"
+                  "95% ranges. The rank range shows where each could really sit among all {n}.").format(n=len(q)),
+                T(SRC), size=(9, 7))
     ax = fig.add_axes([0.42, 0.13, 0.46, 0.68])
     y = np.r_[np.arange(5), np.arange(10) + 6]
     for yi, row in zip(y, t.itertuples()):
         c = BLUE if row.shrunk_rate > 0 else ORANGE
         ax.hlines(yi, row.lo95 * 100, row.hi95 * 100, color=c, lw=2.2, alpha=0.4)
         ax.scatter(row.shrunk_rate * 100, yi, s=55, color=c, zorder=3, edgecolors=SURFACE, linewidths=1.5)
-        ax.text(1.03, yi, f"{int(row.rank_def_lo)} to {int(row.rank_def_hi)}", va="center", ha="left",
+        ax.text(1.03, yi, T("{lo} to {hi}").format(lo=int(row.rank_def_lo), hi=int(row.rank_def_hi)), va="center", ha="left",
                 fontsize=8.5, color=INK2, transform=ax.get_yaxis_transform())
-        ax.text(row.hi95 * 100 + 0.6, yi, f"{row.shrunk_rate * 100:+.1f}", va="center", ha="left",
+        ax.text(row.hi95 * 100 + 0.6, yi, N(row.shrunk_rate * 100, "+.1f"), va="center", ha="left",
                 fontsize=8.5, color=INK2, bbox=dict(fc=SURFACE, ec="none", pad=0.6), zorder=4)
     ax.set_yticks(y)
     ax.set_yticklabels([f"{row.name}  ({row.main_club}, {row.height_cm:.0f} cm)" for row in t.itertuples()],
                        fontsize=8.8, color=INK)
     ax.axvline(0, color=MUTED, lw=1)
     ax.axhline(5, color=GRID, lw=1)
-    ax.set_xlabel("Duels won above expected per 100 (shrunk, line = 95% range)")
-    ax.text(1.03, 16.3, "95% rank\nrange", ha="left", va="center", fontsize=8.5, color=INK2, fontweight="bold",
+    ax.set_xlabel(T("Duels won above expected per 100 (shrunk, line = 95% range)"))
+    ax.text(1.03, 16.3, T("95% rank\nrange"), ha="left", va="center", fontsize=8.5, color=INK2, fontweight="bold",
             transform=ax.get_yaxis_transform())
     ax.spines["left"].set_visible(False)
     ax.set_xlim(-24, 24)
     grid_x(ax)
-    ax.text(23.5, 15.4, "Top 10", ha="right", fontsize=9, fontweight="bold", color=BLUE)
-    ax.text(23.5, 4.4, "Bottom 5", ha="right", fontsize=9, fontweight="bold", color=ORANGE)
+    ax.text(23.5, 15.4, T("Top 10"), ha="right", fontsize=9, fontweight="bold", color=BLUE)
+    ax.text(23.5, 4.4, T("Bottom 5"), ha="right", fontsize=9, fontweight="bold", color=ORANGE)
     save(fig, "d3_best_defenders_in_the_air")
 
 
@@ -330,9 +376,9 @@ def d4_reliability():
     side = {"duels_vs_expected": "Attack and defense", "on_target_vs_expected": "Attack", "shots_prevented": "Defense",
             "next_ball_vs_expected": "Defense", "goals_vs_xg": "Attack"}
     rel = rel.sort_values("full_length_reliability")
-    fig = frame("Only one header skill clearly repeats",
-                "Reliability of each metric, the average over 200 random match splits, corrected to the full sample.\n"
-                "Lines are 95% intervals. 0 means pure luck, 1 means pure skill.", SRC, size=(9, 5.4))
+    fig = frame(T("Only one header skill clearly repeats"),
+                T("Reliability of each metric, the average over 200 random match splits, corrected to the full sample.\n"
+                  "Lines are 95% intervals. 0 means pure luck, 1 means pure skill."), T(SRC), size=(9, 5.4))
     ax = fig.add_axes([0.40, 0.17, 0.54, 0.6])
     y = np.arange(len(rel))
     for i, r in enumerate(rel.itertuples()):
@@ -340,17 +386,20 @@ def d4_reliability():
         lo, hi, est = max(r.rel_ci_lo, 0), max(r.rel_ci_hi, 0), max(r.full_length_reliability, 0)
         ax.hlines(i, lo, hi, color=c, lw=3, alpha=0.45 if c == BLUE else 0.35)
         ax.scatter(est, i, s=70, color=c, zorder=3, edgecolors=SURFACE, linewidths=1.5)
-        lo_txt = "below 0" if r.rel_ci_lo < 0 else f"{r.rel_ci_lo:.2f}"
-        ax.text(hi + 0.02, i, f"{r.full_length_reliability:.2f}  ({lo_txt} to {r.rel_ci_hi:.2f})", va="center",
+        lo_txt = T("below 0") if r.rel_ci_lo < 0 else N(r.rel_ci_lo, ".2f")
+        ax.text(hi + 0.02, i, T("{est}  ({lo} to {hi})").format(est=N(r.full_length_reliability, ".2f"), lo=lo_txt,
+                                                                 hi=N(r.rel_ci_hi, ".2f")), va="center",
                 fontsize=8.8, color=INK)
     ax.set_yticks(y)
-    ax.set_yticklabels([f"{names[m]}\n{side[m]}, {int(p)} players" for m, p in zip(rel["metric"], rel["players"])],
+    ax.set_yticklabels([T("{name}\n{side}, {p} players").format(name=T(names[m]), side=T(side[m]), p=int(p))
+                        for m, p in zip(rel["metric"], rel["players"])],
                        fontsize=9, color=INK, linespacing=1.3)
     ax.set_xlim(-0.04, 1.08)
     ax.set_ylim(-0.6, len(rel) - 0.4)
     ax.axvline(0.5, color=GRID, lw=1.2)
-    ax.text(0.51, len(rel) - 0.55, "repeatable", fontsize=8.5, color=MUTED)
+    ax.text(0.51, len(rel) - 0.55, T("repeatable"), fontsize=8.5, color=MUTED)
     ax.set_xticks([0, 0.25, 0.5, 0.75, 1])
+    dec_axis(ax, "x")
     ax.spines["left"].set_visible(False)
     grid_x(ax)
     save(fig, "d4_which_metrics_are_skill")
@@ -359,12 +408,12 @@ def d4_reliability():
 def m1_xg_calibration():
     b = pd.read_csv(RES / "calibration_bins.csv")
     cs = pd.read_csv(RES / "calibration_summary.csv").set_index(["target", "model"])
-    fig = frame("Header xG predictions match reality",
-                "Headed shots grouped into ten equal bins by predicted chance of a goal. Each dot compares the average\n"
-                "prediction with the share that went in. Lines are 95% intervals from resampling matches.", SRC)
+    fig = frame(T("Header xG predictions match reality"),
+                T("Headed shots grouped into ten equal bins by predicted chance of a goal. Each dot compares the average\n"
+                  "prediction with the share that went in. Lines are 95% intervals from resampling matches."), T(SRC))
     ax = fig.add_axes([0.09, 0.13, 0.60, 0.70])
     ax.plot([0, 0.45], [0, 0.45], color=MUTED, lw=1)
-    for model, c, label, off in (("logistic", BLUE, "This project's xG", -0.002), ("statsbomb", ORANGE, "StatsBomb xG", 0.002)):
+    for model, c, label, off in (("logistic", BLUE, T("This project's xG"), -0.002), ("statsbomb", ORANGE, T("StatsBomb xG"), 0.002)):
         t = b[(b.target == "xg") & (b.model == model)]
         ax.vlines(t["predicted"] + off, t["lo"], t["hi"], color=c, lw=2, alpha=0.4)
         ax.scatter(t["predicted"] + off, t["observed"], s=46, color=c, zorder=3, edgecolors=SURFACE, linewidths=1.3,
@@ -372,41 +421,43 @@ def m1_xg_calibration():
     ax.set_xlim(0, 0.42)
     ax.set_ylim(0, 0.42)
     ax.set_aspect("equal")
-    ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1, decimals=0))
-    ax.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1, decimals=0))
-    ax.set_xlabel("Predicted chance of a goal (bin average)")
-    ax.set_ylabel("Share of headers scored")
-    ax.text(0.33, 0.36, "perfect calibration", rotation=45, fontsize=8.5, color=MUTED, ha="center", va="bottom",
+    pct_axis(ax, "x")
+    pct_axis(ax, "y")
+    ax.set_xlabel(T("Predicted chance of a goal (bin average)"))
+    ax.set_ylabel(T("Share of headers scored"))
+    ax.text(0.33, 0.36, T("perfect calibration"), rotation=45, fontsize=8.5, color=MUTED, ha="center", va="bottom",
             rotation_mode="anchor")
     grid_y(ax)
     ax.legend(loc="upper left", frameon=False, fontsize=9)
     ours, sb = cs.loc[("xg", "logistic")], cs.loc[("xg", "statsbomb")]
-    fig.text(0.72, 0.78, "Calibration slope", fontsize=9.5, fontweight="bold", color=INK, va="top")
-    fig.text(0.72, 0.73, f"This project  {ours.slope:.2f}\n   95%  {ours.slope_lo:.2f} to {ours.slope_hi:.2f}\n"
-             f"StatsBomb  {sb.slope:.2f}\n   95%  {sb.slope_lo:.2f} to {sb.slope_hi:.2f}", fontsize=9, color=INK2,
+    fig.text(0.72, 0.78, T("Calibration slope"), fontsize=9.5, fontweight="bold", color=INK, va="top")
+    fig.text(0.72, 0.73, T("This project  {a}\n   95%  {b} to {c}\nStatsBomb  {d}\n   95%  {e} to {f}").format(
+             a=N(ours.slope, ".2f"), b=N(ours.slope_lo, ".2f"), c=N(ours.slope_hi, ".2f"),
+             d=N(sb.slope, ".2f"), e=N(sb.slope_lo, ".2f"), f=N(sb.slope_hi, ".2f")), fontsize=9, color=INK2,
              va="top", linespacing=1.5)
-    fig.text(0.72, 0.53, "1 is ideal. Below 1 means\npredictions are a bit too\nextreme, above 1 a bit too\ncautious.",
+    fig.text(0.72, 0.53, T("1 is ideal. Below 1 means\npredictions are a bit too\nextreme, above 1 a bit too\ncautious."),
              fontsize=8.5, color=MUTED, va="top", linespacing=1.35)
-    fig.text(0.72, 0.36, "Average prediction", fontsize=9.5, fontweight="bold", color=INK, va="top")
-    fig.text(0.72, 0.31, f"This project  {ours.mean_pred:.3f}\nStatsBomb  {sb.mean_pred:.3f}\n"
-             f"Actual goal rate  {ours.mean_obs:.3f}", fontsize=9, color=INK2, va="top", linespacing=1.5)
+    fig.text(0.72, 0.36, T("Average prediction"), fontsize=9.5, fontweight="bold", color=INK, va="top")
+    fig.text(0.72, 0.31, T("This project  {a}\nStatsBomb  {b}\nActual goal rate  {c}").format(
+             a=N(ours.mean_pred, ".3f"), b=N(sb.mean_pred, ".3f"), c=N(ours.mean_obs, ".3f")), fontsize=9, color=INK2, va="top", linespacing=1.5)
     save(fig, "m1_xg_calibration")
 
 
 def m2_glmm_vs_eb():
     q = pd.read_csv(RES / "mixed_model_players.csv")
     st = pd.read_csv(RES / "mixed_model_stats.csv").iloc[0]
-    fig = frame("Two methods, nearly the same ranking",
-                f"Aerial duels above expected per 100 for {len(q)} ranked players, from the empirical Bayes ranking and\n"
-                f"from a mixed effects model that also adjusts for opponents. Rank correlation {st.spearman_all:.3f} "
-                f"(95% interval {st.spearman_lo:.3f} to {st.spearman_hi:.3f}).", SRC)
+    fig = frame(T("Two methods, nearly the same ranking"),
+                T("Aerial duels above expected per 100 for {n} ranked players, from the empirical Bayes ranking and\n"
+                  "from a mixed effects model that also adjusts for opponents. Rank correlation {r} (95% interval {lo} to {hi}).")
+                .format(n=len(q), r=N(st.spearman_all, ".3f"), lo=N(st.spearman_lo, ".3f"), hi=N(st.spearman_hi, ".3f")),
+                T(SRC))
     ax = fig.add_axes([0.09, 0.13, 0.60, 0.70])
     lim = (min(q.eb_per100.min(), q.glmm_per100.min()) - 1.5, max(q.eb_per100.max(), q.glmm_per100.max()) + 1.5)
     ax.plot(lim, lim, color=MUTED, lw=1)
     up = q["glmm_rank"] < q["eb_rank"] - 40
     ax.scatter(q.loc[~up, "eb_per100"], q.loc[~up, "glmm_per100"], s=16, color=BLUE, alpha=0.55, lw=0)
     ax.scatter(q.loc[up, "eb_per100"], q.loc[up, "glmm_per100"], s=22, color=ORANGE, alpha=0.9, lw=0,
-               label="Moved up 40+ places in the mixed model")
+               label=T("Moved up 40+ places in the mixed model"))
     for name in ["Aritz Aduriz", "Konstantinos Manolas", "Daley Blind", "Chris Smalling", "Angelo Ogbonna"]:
         r = q[q.name == name]
         if len(r):
@@ -418,14 +469,15 @@ def m2_glmm_vs_eb():
     ax.set_xlim(lim)
     ax.set_ylim(lim)
     ax.set_aspect("equal")
-    ax.set_xlabel("Empirical Bayes, duels above expected per 100")
-    ax.set_ylabel("Mixed model, duels above expected per 100")
+    ax.set_xlabel(T("Empirical Bayes, duels above expected per 100"))
+    ax.set_ylabel(T("Mixed model, duels above expected per 100"))
     grid_y(ax)
     ax.legend(loc="upper left", frameon=False, fontsize=8.5)
-    fig.text(0.72, 0.70, "What differs", fontsize=9.5, fontweight="bold", color=INK, va="top")
-    fig.text(0.72, 0.65, "The mixed model estimates\nevery player at once, so a win\nagainst a strong header of the\n"
-             "ball counts for more. Players\nwho faced stronger opponents\nmove up (orange).\n\n"
-             f"Moving up and opponent\nstrength correlate {st.rho_move_opp:.2f}.", fontsize=9, color=INK2, va="top",
+    fig.text(0.72, 0.70, T("What differs"), fontsize=9.5, fontweight="bold", color=INK, va="top")
+    fig.text(0.72, 0.65, T("The mixed model estimates\nevery player at once, so a win\nagainst a strong header of the\n"
+                           "ball counts for more. Players\nwho faced stronger opponents\nmove up (orange).\n\n"
+                           "Moving up and opponent\nstrength correlate {r}.").format(r=N(st.rho_move_opp, ".2f")),
+             fontsize=9, color=INK2, va="top",
              linespacing=1.4)
     save(fig, "m2_glmm_vs_eb")
 
@@ -457,19 +509,23 @@ def calibration_grid():
     print("saved calibration_all_models")
 
 
-def main():
-    a1_xg_map()
-    a2_delivery()
-    a3_drivers()
-    a4_finishing()
-    d1_height()
-    d2_danger_map()
-    d3_defenders()
-    d4_reliability()
-    m1_xg_calibration()
-    m2_glmm_vs_eb()
-    calibration_grid()
+def main(langs=("en", "pt")):
+    global LANG
+    for LANG in langs:
+        a1_xg_map()
+        a2_delivery()
+        a3_drivers()
+        a4_finishing()
+        d1_height()
+        d2_danger_map()
+        d3_defenders()
+        d4_reliability()
+        m1_xg_calibration()
+        m2_glmm_vs_eb()
+        if LANG == "en":
+            calibration_grid()
+    LANG = "en"
 
 
 if __name__ == "__main__":
-    main()
+    main(tuple(sys.argv[1:]) or ("en", "pt"))

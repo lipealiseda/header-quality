@@ -1,0 +1,58 @@
+<div class="page-title">
+  <p class="chapter-no">Capítulo 2</p>
+  <h1>Cabeceios no ataque</h1>
+  <p class="lede">O que transforma um cabeceio em gol, e alguém finaliza de cabeça melhor do que a situação prevê?</p>
+</div>
+
+<div class="col">
+  <h2>Gols esperados, em um exemplo</h2>
+  <div class="example">
+    <p>Das 2.129 finalizações de cabeça feitas dentro da pequena área, 21% foram gol. Das 2.182 feitas perto da marca do pênalti, só 6%. Essa taxa é a ideia por trás dos gols esperados (xG). Cada cabeceio recebe uma probabilidade com base em cabeceios parecidos, e os gols de um jogador menos o seu xG mostram se ele marcou mais do que as suas chances mereciam.</p>
+    <p>Um modelo de xG de verdade faz a mesma coisa com muitos detalhes ao mesmo tempo, como o ângulo, os defensores no caminho, onde está o goleiro e como a bola chegou.</p>
+  </div>
+</div>
+
+<figure>
+  <img src="img/a1_header_goal_map.png" alt="Mapa da área pintado pela porcentagem de finalizações de cabeça que viraram gol. A área mais escura, perto de 40%, fica bem na frente do gol dentro da pequena área, caindo para menos de 5% perto da entrada da área." width="1350" height="810" loading="lazy">
+  <figcaption>Os gols de cabeça se concentram numa área pequena em frente às traves. Fora da pequena área a chance cai rápido.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Como a bola chega importa</h2>
+  <p>Um desvio de um companheiro é a melhor chance de cabeça, com cerca de 1 em 5 entrando. Escanteios e bolas longas são as piores, com cerca de 1 em 12. Cabeceios de escanteio enfrentam em média 8,6 defensores na área, contra 5,9 nas outras bolas, e 63% deles saem sob pressão.</p>
+</div>
+
+<figure>
+  <img src="img/a2_delivery_type.png" alt="Gráfico de pontos com a taxa de gol e a taxa de acerto no alvo por tipo de bola. Desvios lideram com 21% de gols e 56% no alvo. Escanteios têm 8% de gols e 24% no alvo. Bolas longas têm 8% de gols." width="1350" height="900" loading="lazy">
+  <figcaption>Cada ponto é uma taxa, e a linha que passa por ele mostra a faixa onde a taxa real provavelmente está. Linhas curtas querem dizer muitas finalizações.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>No que o modelo se apoia</h2>
+  <p>Foram feitos dois modelos para cada pergunta, uma regressão logística, fácil de explicar, e um modelo de gradient boosting, que encontra padrões mais complexos. Para ver no que um modelo se apoia, uma informação por vez é embaralhada ao acaso e a queda de precisão é medida.</p>
+</div>
+
+<figure>
+  <img src="img/a3_attack_drivers.png" alt="Dois gráficos de barras. Para gols, o ângulo para o gol responde por 41% e a distância por 21%. Para o acerto no alvo, o ângulo responde por 24%, a velocidade da bola por 21% e o cabeceio disputado por 18%." width="1350" height="900" loading="lazy">
+</figure>
+
+<div class="col">
+  <p>Ângulo e distância explicam cerca de 60% do que o modelo de gols sabe. Acertar o alvo depende mais da bola recebida, sobretudo da velocidade com que ela chega e de o cabeceio ter sido disputado ou não.</p>
+  <div class="key"><p>A altura não aparece em nenhuma das listas. Jogadores mais altos não marcam mais do que o seu xG diz, e colocar a altura no modelo não mudou a sua precisão. A altura ajuda o jogador a chegar na bola. Depois que ele chega, posição e espaço decidem o resto.</p></div>
+
+  <h2>O quanto o modelo é bom</h2>
+  <p>O modelo foi testado em jogos que ele nunca viu no treino. Ele coloca um gol ao acaso acima de uma finalização perdida ao acaso 74% das vezes (AUC 0,743, com intervalo de 95% de 0,728 a 0,758). O xG profissional da própria StatsBomb marca 0,749 nos mesmos cabeceios. A diferença de 0,006 está bem dentro do ruído, então os dois não podem ser diferenciados (teste pareado p = 0,20).</p>
+  <p>As probabilidades do modelo também são honestas. Quando ele dá a um grupo de cabeceios cerca de 10% de chance, 10,7% deles entram, e no total ele prevê 0,106 gol por cabeceio contra uma taxa real de 0,107. A <a href="method.html#calibration">página de Método</a> traz a verificação completa da calibração.</p>
+
+  <h2>Alguém finaliza de cabeça melhor do que o esperado?</h2>
+  <p>Essa era uma das perguntas principais, e a resposta honesta é que os dados não conseguem dizer. Só 47 jogadores têm 25 ou mais finalizações de cabeça, e os gols deles ficam dentro da faixa que só a sorte já produziria. O capítulo 4 coloca um número nisso. A finalização acima do xG tem confiabilidade perto de zero, com um intervalo de 95% que ainda chega a 0,53, então um talento moderado não pode ser descartado.</p>
+</div>
+
+<figure>
+  <img src="img/a4_finishing_is_luck.png" alt="Gráfico de dispersão dos gols de cabeça marcados contra os esperados para 47 jogadores. Quase todos ficam dentro de uma faixa cinza que mostra onde só a sorte os colocaria. Gareth Bale e Sergio Ramos ficam acima dela." width="1350" height="900" loading="lazy">
+  <figcaption>Gareth Bale marcou 10 gols de cabeça com 4,0 esperados, a melhor marca aqui. Mesmo assim, 6 de 47 jogadores ficam fora da faixa da sorte, perto dos 5 que só o acaso colocaria ali.</figcaption>
+</figure>
+
+<div class="col">
+  <div class="key warn"><p>Uma lista de quem supera o próprio xG de cabeça é fácil de fazer e parece convincente. Com tão poucos dados por jogador, ela não merece confiança em nenhuma direção.</p></div>
+</div>

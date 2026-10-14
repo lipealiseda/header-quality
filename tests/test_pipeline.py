@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 import build_dataset  # noqa: E402
+import check_site_sync  # noqa: E402
 import geometry  # noqa: E402
 import mixed_model  # noqa: E402
 import modeling  # noqa: E402
@@ -193,6 +194,16 @@ class TestStatistics(unittest.TestCase):
         sim = mixed_model.simulation_check(sigma_true=0.4, k=200, n=20000)
         self.assertAlmostEqual(sim["sigma_hat"], 0.4, delta=0.1)
         self.assertGreater(sim["corr_u"], 0.8)
+
+
+class TestWebsite(unittest.TestCase):
+    def test_portuguese_pages_quote_the_same_numbers(self):
+        self.assertEqual(check_site_sync.compare(), [])
+
+    def test_number_reader_handles_both_formats(self):
+        en = check_site_sync.numbers("<p>10,327 shots, reliability 0.67</p>", "en")
+        pt = check_site_sync.numbers("<p>10.327 finalizações, confiabilidade 0,67</p>", "pt")
+        self.assertEqual(en, pt)
 
 
 if __name__ == "__main__":
