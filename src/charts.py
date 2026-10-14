@@ -393,6 +393,43 @@ def m1_xg_calibration():
     save(fig, "m1_xg_calibration")
 
 
+def m2_glmm_vs_eb():
+    q = pd.read_csv(RES / "mixed_model_players.csv")
+    st = pd.read_csv(RES / "mixed_model_stats.csv").iloc[0]
+    fig = frame("Two methods, nearly the same ranking",
+                f"Aerial duels above expected per 100 for {len(q)} ranked players, from the empirical Bayes ranking and\n"
+                f"from a mixed effects model that also adjusts for opponents. Rank correlation {st.spearman_all:.3f} "
+                f"(95% interval {st.spearman_lo:.3f} to {st.spearman_hi:.3f}).", SRC)
+    ax = fig.add_axes([0.09, 0.13, 0.60, 0.70])
+    lim = (min(q.eb_per100.min(), q.glmm_per100.min()) - 1.5, max(q.eb_per100.max(), q.glmm_per100.max()) + 1.5)
+    ax.plot(lim, lim, color=MUTED, lw=1)
+    up = q["glmm_rank"] < q["eb_rank"] - 40
+    ax.scatter(q.loc[~up, "eb_per100"], q.loc[~up, "glmm_per100"], s=16, color=BLUE, alpha=0.55, lw=0)
+    ax.scatter(q.loc[up, "eb_per100"], q.loc[up, "glmm_per100"], s=22, color=ORANGE, alpha=0.9, lw=0,
+               label="Moved up 40+ places in the mixed model")
+    for name in ["Aritz Aduriz", "Konstantinos Manolas", "Daley Blind", "Chris Smalling", "Angelo Ogbonna"]:
+        r = q[q.name == name]
+        if len(r):
+            r = r.iloc[0]
+            off = {"Daley Blind": (8, -4), "Chris Smalling": (10, -16), "Angelo Ogbonna": (-12, 12)}.get(name, (6, 4))
+            ax.annotate(name, (r.eb_per100, r.glmm_per100), xytext=off, textcoords="offset points", fontsize=8.5,
+                        color=INK, ha="right" if off[0] < 0 else "left",
+                        arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.7) if name in ("Chris Smalling", "Angelo Ogbonna") else None)
+    ax.set_xlim(lim)
+    ax.set_ylim(lim)
+    ax.set_aspect("equal")
+    ax.set_xlabel("Empirical Bayes, duels above expected per 100")
+    ax.set_ylabel("Mixed model, duels above expected per 100")
+    grid_y(ax)
+    ax.legend(loc="upper left", frameon=False, fontsize=8.5)
+    fig.text(0.72, 0.70, "What differs", fontsize=9.5, fontweight="bold", color=INK, va="top")
+    fig.text(0.72, 0.65, "The mixed model estimates\nevery player at once, so a win\nagainst a strong header of the\n"
+             "ball counts for more. Players\nwho faced stronger opponents\nmove up (orange).\n\n"
+             f"Moving up and opponent\nstrength correlate {st.rho_move_opp:.2f}.", fontsize=9, color=INK2, va="top",
+             linespacing=1.4)
+    save(fig, "m2_glmm_vs_eb")
+
+
 def calibration_grid():
     """All five models on one sheet, saved in results/ for the repository."""
     b = pd.read_csv(RES / "calibration_bins.csv")
@@ -430,6 +467,7 @@ def main():
     d3_defenders()
     d4_reliability()
     m1_xg_calibration()
+    m2_glmm_vs_eb()
     calibration_grid()
 
 

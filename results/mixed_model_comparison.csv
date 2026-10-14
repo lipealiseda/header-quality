@@ -1,0 +1,4 @@
+group,players,spearman,top10_overlap,clearly_above_eb,clearly_above_glmm,clearly_above_both,clearly_below_eb,clearly_below_glmm
+All ranked players,512,0.9881292128723635,8,64,91,64,32,26
+Defenders,228,0.9763920795968722,9,18,33,18,8,4
+Forwards,178,0.9927760501059123,10,30,35,30,17,16

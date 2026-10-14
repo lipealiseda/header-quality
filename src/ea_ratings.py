@@ -62,34 +62,53 @@ def model_test():
     return out[out["model"].isin(["logistic", "boosting"])], ea_cols, ea_s
 
 
-def player_test():
-    r = pd.read_csv(RES / "rank_duels_vs_expected.csv")
-    ph = pd.read_csv(PROC / "player_physical.csv.gz")
-    q = r[r["qualified"]].merge(ph[["player_id"] + list(ATTR)], on="player_id", how="left")
-    q = q.dropna(subset=["ea_jumping"])
-    corr = []
-    for a, label in ATTR.items():
-        ok = q[a].notna()
-        rho, p = spearmanr(q.loc[ok, a], q.loc[ok, "shrunk_rate"])
-        corr.append({"attribute": label, "rho": rho, "p": p, "n": int(ok.sum())})
-    corr = pd.DataFrame(corr).sort_values("rho", ascending=False)
-    # all attributes together, weighted least squares on standardised values
-    X = q[list(ATTR)].dropna()
-    y = q.loc[X.index, "shrunk_rate"].values * 100
-    w = q.loc[X.index, "n"].values
+def _wls(q):
+    X = q[list(ATTR)]
+    y = q["shrunk_rate"].values * 100
+    w = q["n"].values
     Z = (X - X.mean()) / X.std()
     A = np.column_stack([np.ones(len(Z)), Z.values])
     W = np.sqrt(w)[:, None]
     beta, *_ = np.linalg.lstsq(A * W, y * W[:, 0], rcond=None)
     fitted = A @ beta
     r2 = 1 - np.sum(w * (y - fitted) ** 2) / np.sum(w * (y - np.average(y, weights=w)) ** 2)
-    coefs = pd.DataFrame({"attribute": [ATTR[c] for c in X.columns], "per_sd": beta[1:]})
-    return q, corr, coefs.sort_values("per_sd", ascending=False), r2, len(X)
+    return beta[1:], r2
+
+
+def player_test(boot=2000):
+    """Correlations and the joint regression, each with a 95% interval from
+    resampling players with replacement."""
+    rng = np.random.default_rng(3)
+    r = pd.read_csv(RES / "rank_duels_vs_expected.csv")
+    ph = pd.read_csv(PROC / "player_physical.csv.gz")
+    q = r[r["qualified"]].merge(ph[["player_id"] + list(ATTR)], on="player_id", how="left")
+    q = q.dropna(subset=list(ATTR)).reset_index(drop=True)
+    corr = []
+    for a, label in ATTR.items():
+        rho, p = spearmanr(q[a], q["shrunk_rate"])
+        corr.append({"attribute": label, "key": a, "rho": rho, "p": p, "n": len(q)})
+    corr = pd.DataFrame(corr)
+    beta, r2 = _wls(q)
+    bs_rho, bs_beta, bs_r2 = [], [], []
+    for _ in range(boot):
+        s = q.iloc[rng.integers(0, len(q), len(q))]
+        bs_rho.append([spearmanr(s[a], s["shrunk_rate"])[0] for a in ATTR])
+        b, rr = _wls(s)
+        bs_beta.append(b)
+        bs_r2.append(rr)
+    bs_rho, bs_beta = np.array(bs_rho), np.array(bs_beta)
+    corr["lo"], corr["hi"] = np.quantile(bs_rho, 0.025, axis=0), np.quantile(bs_rho, 0.975, axis=0)
+    coefs = pd.DataFrame({"attribute": [ATTR[c] for c in ATTR], "per_sd": beta,
+                          "lo": np.quantile(bs_beta, 0.025, axis=0), "hi": np.quantile(bs_beta, 0.975, axis=0)})
+    r2_ci = (float(np.quantile(bs_r2, 0.025)), float(np.quantile(bs_r2, 0.975)))
+    corr.to_csv(RES / "ea_correlations.csv", index=False)
+    return (q, corr.sort_values("rho", ascending=False), coefs.sort_values("per_sd", ascending=False),
+            r2, r2_ci, len(q))
 
 
 def main():
     metrics, ea_cols, ea_s = model_test()
-    q, corr, coefs, r2, n_reg = player_test()
+    q, corr, coefs, r2, r2_ci, n_reg = player_test()
     ea = pd.read_csv(PROC / "player_physical.csv.gz").set_index("player_id")["ea_jumping"]
     sh = pd.read_csv(PROC / "headed_shots.csv.gz", usecols=["player_id"])
     du = pd.read_csv(PROC / "aerial_duels.csv.gz", usecols=["winner_id", "loser_id"])
@@ -111,15 +130,16 @@ def main():
           f"Players with 100+ aerial duels and an EA match ({len(q)} players). Their duels-above-expected number "
           "comes from a model that knows both players' heights but no EA ratings. Spearman correlation between "
           "that number and each EA rating.", "",
-          "| EA rating | Correlation | p value | Players |", "|---|---|---|---|"]
+          "| EA rating | Spearman correlation (95% interval) | p value | Players |", "|---|---|---|---|"]
     for _, r in corr.iterrows():
-        L.append(f"| {r.attribute} | {r.rho:+.2f} | {r.p:.3f} | {r.n} |")
+        L.append(f"| {r.attribute} | {r.rho:+.2f} ({r.lo:+.2f} to {r.hi:+.2f}) | {r.p:.3f} | {r.n} |")
     L += ["", f"All five together (weighted regression, standardised ratings, {n_reg} players) explain "
-          f"{r2:.0%} of the spread in duels above expected. Change in duels won above expected per 100 for one "
-          "standard deviation of each rating, holding the others fixed.", "",
-          "| EA rating | Per 1 SD |", "|---|---|"]
+          f"{r2:.0%} of the spread in duels above expected (95% interval {r2_ci[0]:.0%} to {r2_ci[1]:.0%}). "
+          "Change in duels won above expected per 100 for one standard deviation of each rating, holding the "
+          "others fixed. Intervals come from resampling the players 2,000 times.", "",
+          "| EA rating | Per 1 SD (95% interval) |", "|---|---|"]
     for _, r in coefs.iterrows():
-        L.append(f"| {r.attribute} | {r.per_sd:+.1f} |")
+        L.append(f"| {r.attribute} | {r.per_sd:+.1f} ({r.lo:+.1f} to {r.hi:+.1f}) |")
     top = q.nlargest(5, "shrunk_rate")[["name", "pos_group", "shrunk_rate", "ea_jumping", "ea_strength", "ea_heading"]]
     L += ["", "## The top five players in the air, with their EA ratings", "",
           "| Player | Pos | Above expected per 100 | Jumping | Strength | Heading |", "|---|---|---|---|---|---|"]

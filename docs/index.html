@@ -51,16 +51,31 @@
   </svg>
 </section>
 
-<div class="col">
-  <h2>Three things this project found</h2>
-  <ul class="findings">
-    <li><span class="stat">39% vs 76%</span>How often the defending player wins an aerial duel when he is more than 10 cm shorter than the attacker, against more than 10 cm taller. Height mostly decides who reaches the ball first.</li>
-    <li><span class="stat">0.67 reliability</span>Winning more aerial duels than the model expects is a real skill. It repeats from one set of matches to the next (95% interval 0.59 to 0.74), even after both players' heights are taken into account.</li>
-    <li><span class="stat bad">No clear signal</span>Scoring more headed goals than expected (goals minus xG) shows no sign of being a skill in this data. With only 47 players to test, the data cannot rule out a moderate amount either, so headed finishing stays an open question.</li>
-  </ul>
+<section class="summary" aria-labelledby="sum-t">
+  <h2 id="sum-t">For scouts, in one minute</h2>
+  <ol class="sum-list">
+    <li>
+      <p class="sum-head">Scout aerial duels won above expectation. It is a real, repeatable skill.</p>
+      <p>A player's number in one half of his matches predicts the other half well, even after height, position, the delivery and the pitch location are accounted for.</p>
+      <p class="sum-num">Reliability 0.67 <span>(95% interval 0.59 to 0.74)</span></p>
+    </li>
+    <li>
+      <p class="sum-head">Height decides who wins the header, then stops mattering.</p>
+      <p>It is the biggest single driver of aerial duels, yet taller players do not score more headed goals than their chances predict.</p>
+      <p class="sum-num">Defender wins 76% when 10+ cm taller, 39% when 10+ cm shorter <span>(95% intervals 75 to 77% and 38 to 40%)</span></p>
+    </li>
+    <li>
+      <p class="sum-head">Do not judge headed finishing from free data.</p>
+      <p>Goals above headed xG show no sign of being a skill, but only 47 players have enough headed shots to test, so a moderate amount of skill cannot be ruled out either.</p>
+      <p class="sum-num">Reliability about 0 <span>(95% interval below 0 to 0.53)</span></p>
+    </li>
+  </ol>
+  <p class="sum-foot">Data is mostly the 2015/16 Premier League, La Liga, Serie A and Ligue 1. Player rankings with ranges are in <a href="rankings.html">chapter 5</a>.</p>
+</section>
 
+<div class="col">
   <h2>How to read this site</h2>
-  <p>Each chapter builds on the one before, and each takes about five minutes. If you only have one minute, read chapter 4.</p>
+  <p>Each chapter builds on the one before, and each takes about five minutes. If you only have five minutes, read chapter 4.</p>
   <ol class="toc">
     <li><span class="n">1</span><a href="data.html">The data</a><p>What free football data contains, which factors it can measure, and how player heights were matched.</p></li>
     <li><span class="n">2</span><a href="attack.html">Attacking headers</a><p>A header expected goals model, where headed goals come from, and why corners make poor chances.</p></li>

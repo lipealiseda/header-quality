@@ -43,21 +43,22 @@
 <div class="col">
   <p>When the defender is more than 10 cm shorter than the attacker he wins 39% of duels. When he is more than 10 cm taller he wins 76%. Even at the same height the defending player wins 59%. The data does not say why, but a likely reason is that defenders usually face the ball as it arrives while attackers often have to turn or run onto it.</p>
 
-  <h2>What else decides a duel</h2>
-  <p>A model trained on 93,684 duels, and tested on matches it had not seen, ranks the inputs like this.</p>
+  <h2>What decides a duel</h2>
+  <p>A model trained on 93,684 duels and tested on matches it had not seen was asked how much it relies on each kind of information. The method is simple. Shuffle one kind of information at random so it no longer matches the duels, and measure how much worse the predictions get. Inputs that overlap, like the two players' heights and the difference between them, are shuffled together, and the test is repeated 15 times across different held out matches.</p>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Factor</th><th class="num">Share of what the model knows</th></tr></thead>
+      <thead><tr><th>What was shuffled</th><th class="num">Share of the model's accuracy</th><th class="num">Range over 15 tests</th></tr></thead>
       <tbody>
-        <tr><td>Where the duel happens (distance from the defender's goal line)</td><td class="num">20%</td></tr>
-        <tr><td>Where the delivery started</td><td class="num">19%</td></tr>
-        <tr class="hl"><td>Height difference between the two players</td><td class="num">17%</td></tr>
-        <tr><td>Phase of play, such as a goal kick or a corner</td><td class="num">12%</td></tr>
-        <tr><td>Defender's position</td><td class="num">11%</td></tr>
-        <tr><td>Type of delivery</td><td class="num">6%</td></tr>
+        <tr class="hl"><td>Height of both players and the difference</td><td class="num">30%</td><td class="num">26% to 35%</td></tr>
+        <tr><td>Where the duel happens</td><td class="num">17%</td><td class="num">14% to 19%</td></tr>
+        <tr><td>Where the delivery started</td><td class="num">16%</td><td class="num">11% to 19%</td></tr>
+        <tr><td>Positions of the two players</td><td class="num">14%</td><td class="num">12% to 18%</td></tr>
+        <tr><td>Type and flight of the delivery</td><td class="num">12%</td><td class="num">10% to 15%</td></tr>
+        <tr><td>Phase of play, such as a goal kick or a corner</td><td class="num">10%</td><td class="num">8% to 12%</td></tr>
       </tbody>
     </table>
   </div>
+  <p>Height came first in all 15 tests. An earlier version of this page called height the third biggest factor, because it shuffled the height difference on its own while the model could still see both raw heights. The <a href="method.html#importance">Method page</a> shows both versions.</p>
   <p>Adding height lifted the model's accuracy (AUC) from 0.643 to 0.667, and with 93,684 duels that gain is far larger than the uncertainty (the 95% interval with height is 0.663 to 0.670). That sounds small, but duels are close to a coin flip by nature, so any reliable edge matters. The model still leaves plenty unexplained, and part of that gap is individual skill, which chapter 4 measures.</p>
 
   <h2>Where you clear it matters most</h2>

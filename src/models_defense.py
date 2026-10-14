@@ -31,6 +31,14 @@ POS_GROUP = {
     "Center Forward": "ST", "Left Center Forward": "ST", "Right Center Forward": "ST", "Secondary Striker": "ST",
 }
 DLV_CAT = ["dlv_type", "dlv_height"]
+# features known before the duel or header; heights are added by physical_columns
+DUEL_NUM = ["x", "wide", "in_own_box", "dlv_length", "dlv_pace", "dlv_start_x", "f360_opp_within_3m"]
+DUEL_CAT = DLV_CAT + ["play_pattern", "def_pos", "att_pos"]
+CLEAR_NUM = ["x", "wide", "dist_own_goal", "in_own_box", "aerial_won", "under_pressure",
+             "dlv_length", "dlv_pace", "dlv_start_x", "score_diff", "f360_opp_within_10m", "f360_nearest_opp"]
+# "action" (Pass or Clearance) is left out on purpose. StatsBomb tends to log a header
+# as a pass when it reaches a teammate, so it leaks the outcome we want to predict.
+CLEAR_CAT = DLV_CAT + ["play_pattern", "pos_group"]
 
 
 def pos(s):
@@ -60,11 +68,11 @@ def prepare_duels():
 
 def duel_model():
     d = prepare_duels()
-    num = ["x", "wide", "in_own_box", "dlv_length", "dlv_pace", "dlv_start_x", "f360_opp_within_3m"]
+    num = list(DUEL_NUM)
     phys = physical_columns(d, "def_") + physical_columns(d, "att_") + (
         ["height_diff"] if not TAG and "height_diff" in d and d["height_diff"].notna().mean() > 0.3 else [])
     num += phys
-    cat = DLV_CAT + ["play_pattern", "def_pos", "att_pos"]
+    cat = list(DUEL_CAT)
     print(f"{len(d)} duels, physical inputs used {phys or 'none yet'}")
     m, oof, full = run(d, num, cat, "def_won", "duel")
     print(m.round(4).to_string(index=False))
@@ -95,12 +103,8 @@ def prepare_defs():
 def clearance_models():
     f = prepare_defs()
     phys = physical_columns(f)
-    num = ["x", "wide", "dist_own_goal", "in_own_box", "aerial_won", "under_pressure",
-           "dlv_length", "dlv_pace", "dlv_start_x", "score_diff", "f360_opp_within_10m",
-           "f360_nearest_opp"] + phys
-    # "action" (Pass or Clearance) is left out on purpose. StatsBomb tends to log a header
-    # as a pass when it reaches a teammate, so it leaks the outcome we want to predict.
-    cat = DLV_CAT + ["play_pattern", "pos_group"]
+    num = list(CLEAR_NUM) + phys
+    cat = list(CLEAR_CAT)  # see the note on CLEAR_CAT about leaving out "action"
     print(f"{len(f)} defensive headers, physical inputs used {phys or 'none yet'}")
     metrics, preds = [], []
     for target, name in (("opp_shot_10s", "shot10"), ("next_team_won", "keep")):

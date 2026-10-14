@@ -122,6 +122,45 @@ def duels(game):
     return pairs
 
 
+def power_analysis(n, alpha=0.05, target=0.8, sims=4000):
+    """What could 38 duels have detected? Three framings.
+
+    1. Sign test. If the winner truly has the higher value in a share q of duels,
+       the smallest q detected with 80% power by an exact two sided binomial test.
+    2. Paired standardised effect d (mean winner minus loser difference divided by
+       its standard deviation) detected with 80% power by a paired t test, and the
+       matching share of duels where the winner is ahead, Phi(d).
+    3. AUC. Smallest true AUC whose 95% lower bound clears 0.5 in 80% of simulated
+       studies with n duels split evenly into two classes (Mann Whitney test).
+    """
+    from scipy.stats import binom, mannwhitneyu, nct, norm, t as tdist
+    # 1. sign test
+    crit = next(k for k in range(n + 1) if 2 * binom.sf(k - 1, n, 0.5) <= alpha)
+    q_min = next(q for q in np.arange(0.5, 1.0, 0.001) if binom.sf(crit - 1, n, q) >= target)
+    # 2. paired t
+    tc = tdist.ppf(1 - alpha / 2, n - 1)
+    d_min = next(d for d in np.arange(0.01, 2, 0.001) if 1 - nct.cdf(tc, n - 1, d * np.sqrt(n)) >= target)
+    # 3. AUC by simulation
+    rng = np.random.default_rng(1)
+    n1 = n // 2
+    auc_min = None
+    for auc in np.arange(0.55, 0.95, 0.01):
+        delta = np.sqrt(2) * norm.ppf(auc)
+        hits = sum(mannwhitneyu(rng.normal(delta, 1, n1), rng.normal(0, 1, n - n1),
+                                alternative="two-sided").pvalue < alpha for _ in range(sims // 4))
+        if hits / (sims // 4) >= target:
+            auc_min = auc
+            break
+    return {"sign_share": q_min, "d": d_min, "d_share": norm.cdf(d_min), "auc": auc_min}
+
+
+def wilson(k, n, z=1.96):
+    p = k / n
+    c = (p + z * z / (2 * n)) / (1 + z * z / n)
+    h = z * np.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / (1 + z * z / n)
+    return c - h, c + h
+
+
 def main():
     download()
     rows = []
@@ -198,6 +237,31 @@ def main():
               "compared with height or put into the main duel model. Tracking with names (for example SkillCorner "
               "broadcast data for leagues that also have StatsBomb events) would let speed enter the model directly.",
               "", "Data from Metrica Sports sample data (github.com/metrica-sports/sample-data)."]
+    pw = power_analysis(len(d))
+    lines += ["", "## What could 38 duels have detected?", "",
+              "A result that does not reach significance only means something if the test had a fair chance of "
+              "finding an effect. With 38 duels, at the usual 5% significance level and 80% power, the smallest "
+              "effects this test could reliably detect are", "",
+              f"- the winner having the edge in at least {pw['sign_share']:.0%} of duels (exact sign test),",
+              f"- a standardised paired difference of {pw['d']:.2f}, which is the winner ahead in about "
+              f"{pw['d_share']:.0%} of duels if differences are roughly normal (paired t test),",
+              f"- a true AUC of about {pw['auc']:.2f} for telling winner from loser (Mann Whitney test, simulation).", "",
+              "So a large effect, say the winner moving faster in three of every four duels, would probably have "
+              "shown up. A modest effect, like the winner being quicker in 60% of duels, could easily be missed.", "",
+              "The observed shares, with 95% Wilson intervals, show which effects the data argues against.", "",
+              "| Feature | Winner higher in | 95% interval |", "|---|---|---|"]
+    for f in feats:
+        diff = (d[f"win_{f}"] - d[f"lose_{f}"]).dropna()
+        k, m = int((diff > 0).sum()), len(diff)
+        lo, hi = wilson(k, m)
+        lines.append(f"| {names[f]} | {k} of {m} ({k / m:.0%}) | {lo:.0%} to {hi:.0%} |")
+    lines += ["", "For speed at the jump, peak speed and run up distance, the whole interval sits at or below 55%, "
+              "so in these two games the data argues against the faster player winning even 60% of duels. If "
+              "anything the loser was moving faster more often, which could also be chance. For movement toward "
+              "the ball and change in speed the intervals reach 63% to 68%, so a modest advantage there cannot be "
+              "ruled out. Two anonymous games are also not a sample of the leagues in the main study, so none of "
+              "this carries over to them directly."]
+    pd.DataFrame([{"n": len(d), **pw}]).to_csv(RES / "stage5_power.csv", index=False)
     (RES / "stage5_tracking.md").write_text("\n".join(lines))
     d.to_csv(RES / "stage5_duel_movement.csv", index=False)
     print("\n".join(lines))

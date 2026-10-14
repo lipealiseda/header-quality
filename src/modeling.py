@@ -29,6 +29,11 @@ TAG = "_noheight" if os.environ.get("HQ_NO_PHYSICAL") else ""
 SEED = 7
 
 
+def match_folds(groups, k=5):
+    """Train and test row indices for k folds where every match sits wholly in one fold."""
+    return list(GroupKFold(k).split(np.zeros(len(groups)), groups=groups))
+
+
 def logistic(num, cat):
     pre = ColumnTransformer([
         ("num", Pipeline([("imp", SimpleImputer(strategy="median", add_indicator=True)),
@@ -70,7 +75,7 @@ def run(df, num, cat, target, name, groups="match_id", folds=5, benchmark=None):
     the same rows, for example StatsBomb's own xG."""
     X, y, g = df[num + cat], df[target].astype(int).values, df[groups].values
     oof = {"logistic": np.zeros(len(df)), "boosting": np.zeros(len(df))}
-    for tr, te in GroupKFold(folds).split(X, y, g):
+    for tr, te in match_folds(g, folds):
         for key, make in (("logistic", logistic), ("boosting", boosting)):
             m = make(num, cat).fit(X.iloc[tr], y[tr])
             oof[key][te] = m.predict_proba(X.iloc[te])[:, 1]

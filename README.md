@@ -9,7 +9,7 @@ How good are players with their heads, in attack and in defense, once you accoun
 ## Main findings
 
 - Winning aerial duels is a repeatable skill. Split-half reliability is 0.67 (95% interval 0.59 to 0.74, over 200 random match splits) even after the model accounts for both players' heights, positions, the delivery and the location.
-- Height is the third biggest driver of who wins a duel. A defender 10+ cm taller than his man wins about 3 in 4, one 10+ cm shorter about 4 in 10.
+- Height is the biggest single driver of who wins a duel, 30% of the duel model's accuracy (range 26% to 35%) when both heights and their difference are shuffled together in permutation importance, first in all 15 repeats. A defender 10+ cm taller than his man wins 76% (95% interval 75% to 77%), one 10+ cm shorter 39% (38% to 40%).
 - Height does not help once the header is won. Taller players do not beat their headed xG.
 - Headed goals minus xG shows no sign of being a skill (reliability about 0), but with only 47 qualified players the 95% interval reaches 0.53, so moderate finishing skill cannot be ruled out either.
 - The header xG model (logistic regression, AUC 0.743, 95% interval 0.728 to 0.758) cannot be told apart from StatsBomb's own xG on the same shots (difference -0.006, interval -0.014 to +0.003, paired match bootstrap p = 0.20), and it is better calibrated there.
@@ -66,11 +66,19 @@ Two choices worth knowing about.
 
 ## Stage 5, speed from tracking data
 
-Free event data has no speed, so a small side test uses Metrica Sports' two anonymised sample games (25 frames per second). For 38 aerial duels where both players are tracked, speed, peak speed, run up distance and movement toward the ball in the second before contact do not pick the winner better than a coin flip (leave one out AUC 0.53, range 0.34 to 0.73). The sample is far too small to rule out a modest effect. Details, including a leak caught on the first attempt, are in [results/stage5_tracking.md](results/stage5_tracking.md).
+Free event data has no speed, so a small side test uses Metrica Sports' two anonymised sample games (25 frames per second). For 38 aerial duels where both players are tracked, speed, peak speed, run up distance and movement toward the ball in the second before contact do not pick the winner better than a coin flip (leave one out AUC 0.53, range 0.34 to 0.73). A power analysis shows 38 duels could reliably detect only a large effect (the winner ahead in 73% or more of duels, or an AUC of about 0.76), so a modest effect could be missed. For speed at the jump the observed share (37%, 95% interval 23% to 53%) argues against even a 60% edge in these two games. Details, including a leak caught on the first attempt, are in [results/stage5_tracking.md](results/stage5_tracking.md).
 
 ## Do strength, jumping and speed explain it?
 
-EA FC ratings (FIFA 15 to 22) were matched to players as rough proxies for physical traits, and kept out of the main models so rankings stay "above what height predicts". Added to the duel model they lift AUC from 0.667 to 0.675, and they add nothing to header xG or accuracy. Among 483 players with 100+ duels, EA's jumping rating has the strongest link with winning more duels than height predicts (Spearman 0.28), then heading (0.18) and strength (0.12), while sprint speed shows none. All the ratings together explain only 12% of the spread, so most of what separates the best players in the air is not in the ratings. Details in [results/ea_ratings.md](results/ea_ratings.md).
+EA FC ratings (FIFA 15 to 22) were matched to players as rough proxies for physical traits, and kept out of the main models so rankings stay "above what height predicts". Added to the duel model they lift AUC from 0.667 to 0.675, and they add nothing to header xG or accuracy. Among 483 players with 100+ duels, EA's jumping rating has the strongest link with winning more duels than height predicts (Spearman 0.28, 95% interval 0.19 to 0.36), then heading (0.18, 0.09 to 0.26) and strength (0.12, 0.03 to 0.22), while weight and sprint speed are consistent with no link. All the ratings together explain only 12% of the spread (6% to 19%), so most of what separates the best players in the air is not in the ratings. Details in [results/ea_ratings.md](results/ea_ratings.md).
+
+## Robustness checks
+
+- **Mixed effects model.** A crossed random intercept logistic model (player effects for both defender and attacker, on top of the duel model's prediction) was fit by Laplace approximation and checked on simulated data first. It ranks players almost exactly like the empirical Bayes ranking (Spearman 0.988, 95% interval 0.985 to 0.990). Players who move up faced stronger opponents. See [results/mixed_model_summary.md](results/mixed_model_summary.md).
+- **One team seasons.** Seasons that follow a single team, mostly Barcelona, hold 26% of matches and 18% of duels. Refitting the duel model without them leaves AUC at 0.666 and reliability at 0.67, with a rank correlation of 0.987 for players ranked both ways. See [results/data_sanity.md](results/data_sanity.md), which also explains the 2,258 duels (95,942 to 93,684) that cannot enter the model because no pass came before them.
+- **Importance.** How the duel drivers were measured, single and grouped, with the drop column check, is in [results/duel_importance.md](results/duel_importance.md).
+
+![Mixed model against empirical Bayes](figures/m2_glmm_vs_eb.png)
 
 ## Rankings
 
@@ -91,43 +99,36 @@ Full tables are in [results/stage4_rankings.md](results/stage4_rankings.md) and 
 ## Reproduce it
 
 ```bash
-pip install -r requirements.txt
-
-python src/download_statsbomb.py      # about 30 minutes, around 11 GB on disk
-python src/build_dataset.py           # Stage 2, about 2 minutes
-python src/check_dataset.py
+pip install -r requirements.txt       # pinned versions, Python 3.13
 
 # heights: download players.csv from https://www.kaggle.com/datasets/davidcariboo/player-scores
 # and save it as data/external/transfermarkt_players.csv
-# optional, better matching: also save appearances.csv and clubs.csv there, then
-python src/build_tm_clubs.py
-python src/match_players.py
+# optional: appearances.csv and clubs.csv in the same folder (better name matching),
+#           players_15.csv ... players_22.csv from the EA FC Kaggle dataset in data/external/ea/
 
-python src/models_attack.py           # Stage 3
-python src/models_defense.py
-HQ_NO_PHYSICAL=1 python src/models_attack.py    # same models without height, for comparison
-HQ_NO_PHYSICAL=1 python src/models_defense.py
-python src/uncertainty.py             # match bootstrap, calibration, xG vs StatsBomb (about 15 minutes)
-python src/stage3_report.py
-python src/rankings.py                # Stage 4
-python src/stage4_report.py
-# optional EA test: unzip players_15.csv ... players_22.csv into data/external/ea/,
-# rerun python src/match_players.py, then
-python src/ea_ratings.py
-python src/charts.py                  # Stage 6
-python src/build_site.py              # website in docs/, served by GitHub Pages
-python src/stage5_tracking.py         # Stage 5 stretch, Metrica sample tracking data
+python run_all.py                     # every stage in order, about 1 hour including the download
+python run_all.py --list              # the stages
+python run_all.py --from models       # start part way through
+
+python -m unittest discover tests -v  # 18 tests, about 10 seconds
 ```
+
+The tests check, among other things, that no match is in both a training and a test fold, that no outcome column is a model input, that no missing values reach the models after preprocessing, that the duel delivery never picks the winner's own header, and that the shrinkage, reliability and mixed model code recover known answers on simulated data. Tests that need the built dataset skip themselves until it exists.
+
+Individual stages can still be run as single scripts from `src/`, in the order listed by `run_all.py --list`.
 
 ## Repository layout
 
 ```
-src/            all code, one script per stage
-figures/        the eight charts
-results/        model metrics, drivers, calibration, rankings
+run_all.py      runs every stage in order
+src/            all code, one script per step
+tests/          unittest suite
+figures/        the charts
+results/        model metrics, intervals, calibration, rankings, robustness checks
 docs/           the website (built from site_src/) and the data dictionary
 site_src/       page content for the website
 WRITEUP.md      one page summary for scouts and analysts
+LICENSE         MIT, for the code only (data keeps its own licences)
 ```
 
 ## Limitations

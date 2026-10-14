@@ -72,6 +72,40 @@
   </div>
   <p>The two models cannot be told apart on ranking headers. DeLong's test for two AUCs on the same data gives the same answer (p = 0.18), though it assumes every shot is independent, so the match bootstrap is the main result. This model is the better calibrated of the two here, with no overall bias and a slope whose interval includes 1. That comparison favours it a little, since it was fit and tested on these same competitions while StatsBomb's xG is a general model.</p>
 
+  <h2 id="importance">How "what matters" was measured</h2>
+  <p>The factor tables on the attack and defense pages use permutation importance. A model is trained on some matches, then on matches it has not seen, one input is shuffled at random so it no longer lines up with the outcomes. The drop in accuracy, measured as the increase in log loss, is how much the model was relying on that input. Shares are each input's drop divided by the total.</p>
+  <p>One detail changes the answer. Inputs that carry overlapping information have to be shuffled together. The duel model sees both players' heights and the difference between them, and shuffling only the difference lets the model fall back on the raw heights. Measured that way, height difference ranks third with 17%. Shuffled as a group, height ranks first with 30% (range 26% to 35%), and it came first in all 15 repeats across the five folds. A second check refits the model with every height input removed. Accuracy falls from AUC 0.667 to 0.643, which is what height adds that nothing else can stand in for.</p>
+  <p class="small">The attack page's factor chart still uses single inputs on one held out fold, because its inputs overlap much less. The full grouped table is in <a href="https://github.com/lipealiseda/header-quality/blob/main/results/duel_importance.md">duel_importance.md</a>.</p>
+
+  <h2>A second way to rank players</h2>
+  <p>The duel rankings use empirical Bayes. Each player's wins minus expected wins are added up, then pulled toward average depending on how much data he has. A standard alternative is a mixed effects model, a logistic regression that gives every player his own adjustment and estimates all of them together. Here each duel's log odds are the duel model's prediction plus the defender's adjustment minus the attacker's, with the adjustments assumed to follow a normal distribution.</p>
+  <p>The practical difference is the opponent. Empirical Bayes treats every opponent as average. The mixed model knows that beating a player who is himself strong in the air means more than beating a weak one. The statsmodels library could not be installed in this environment, so the model was fit directly with the Laplace approximation, the same method R's lme4 package uses by default, and checked first on simulated data with known answers (it recovered a true spread of 0.35 as 0.33, and its player estimates correlated 0.92 with the truth).</p>
+</div>
+
+<figure>
+  <img src="img/m2_glmm_vs_eb.png" alt="Scatter of mixed model against empirical Bayes duel numbers for 512 players, lying close to the diagonal. Players who faced stronger opponents, such as Chris Smalling and Angelo Ogbonna, sit slightly above it." width="1350" height="900" loading="lazy">
+</figure>
+
+<div class="col">
+  <p>The two methods agree closely. The rank correlation is 0.988 (95% interval 0.985 to 0.990), 0.976 among defenders and 0.993 among forwards. Nine of the top ten defenders and all of the top ten forwards are the same. Players who move up in the mixed model are the ones who faced stronger opponents in the air (correlation 0.86 between moving up and opponent strength), as the model intends. Chris Smalling, for example, rises from 259th to 166th. The mixed model also marks more players as clearly above average, 91 against 64, because part of the noise is assigned to opponents, but every player the main ranking marks as clearly above average is marked by both.</p>
+
+  <h2>Checking the data</h2>
+  <p><strong>Why 95,942 duels became 93,684 model rows.</strong> In 2,258 duels (2.4%) no pass came in the 6 seconds before, for example a loose ball or a header straight after another header. Without a delivering team there is no way to say which player was defending, so these duels cannot enter the duel model.</p>
+  <p><strong>The Barcelona question.</strong> Some club seasons in the open data follow one team in every match, mostly Barcelona. Barcelona matches are 20% of all matches but only 13% of aerial duels and 16% of headed shots, since they average 23 aerial duels per match against 39 elsewhere. Counting every one team season (Barcelona, Paris Saint-Germain, Leverkusen, Arsenal 2003/04 and a few others) gives 26% of matches and 18% of duels.</p>
+  <p>That is enough to matter, so the duel model was refit without those seasons and the rankings were rebuilt from scratch.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th></th><th class="num">All data</th><th class="num">Without one team seasons</th></tr></thead>
+      <tbody>
+        <tr><td>Duels in the model</td><td class="num">93,684</td><td class="num">76,537</td></tr>
+        <tr><td>Duel model AUC</td><td class="num">0.667</td><td class="num">0.666</td></tr>
+        <tr><td>Players with 100+ duels</td><td class="num">512</td><td class="num">446</td></tr>
+        <tr><td>Reliability of duels above expected</td><td class="num">0.67 (0.59 to 0.74)</td><td class="num">0.67 (0.60 to 0.75)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>For the 446 players ranked both ways, the rank correlation is 0.987, and 9 of the top 10 defenders are unchanged. The 66 players who drop out are mostly Barcelona players and their regular opponents, such as Carles Puyol and Dani Alves, who fall below 100 duels without those seasons. The findings do not depend on the one team seasons.</p>
+
   <h2>Mistakes caught along the way</h2>
   <p>Each of these would have made the results look better or different than they really are. They are listed because checking for them is most of the work.</p>
   <ul>
@@ -85,10 +119,24 @@
   <h2>Do jumping, strength and speed explain it?</h2>
   <p>Free data has no physical tests, so two side tests looked at what height cannot explain.</p>
   <h3>EA FC ratings</h3>
-  <p>Ratings from the FIFA 15 to 22 games were matched to 4,941 players. A match was thrown out when EA's height differed from Transfermarkt's by more than 5 cm. Among 483 players with 100 or more duels, the jumping rating has the strongest link with winning more duels than height predicts (correlation 0.28), followed by heading (0.18) and strength (0.12). Sprint speed shows no link. All the ratings together explain only 12% of the differences between players, so most of what makes someone good in the air is not in the ratings. Added to the duel model, they lift AUC from 0.667 to 0.675.</p>
+  <p>Ratings from the FIFA 15 to 22 games were matched to 4,941 players. A match was thrown out when EA's height differed from Transfermarkt's by more than 5 cm. For the 483 players with 100 or more duels and an EA match, each rating was correlated with winning more duels than height predicts. The intervals come from resampling the players 2,000 times.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>EA rating</th><th class="num">Spearman correlation</th><th class="num">95% interval</th></tr></thead>
+      <tbody>
+        <tr><td>Jumping</td><td class="num">0.28</td><td class="num">0.19 to 0.36</td></tr>
+        <tr><td>Heading accuracy</td><td class="num">0.18</td><td class="num">0.09 to 0.26</td></tr>
+        <tr><td>Strength</td><td class="num">0.12</td><td class="num">0.03 to 0.22</td></tr>
+        <tr><td>Weight</td><td class="num">0.06</td><td class="num">&minus;0.03 to 0.15</td></tr>
+        <tr><td>Sprint speed</td><td class="num">0.03</td><td class="num">&minus;0.06 to 0.11</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Jumping, heading and strength are linked to beating expectations, while weight and sprint speed are consistent with no link. In a regression with all five together, only jumping stays clearly above zero. All five ratings explain 12% of the differences between players (95% interval 6% to 19%), so most of what makes someone good in the air is not captured by them. Added to the duel model, they lift AUC from 0.667 to 0.675.</p>
   <p>The ratings were kept out of the main models on purpose. If the expected value already knew a player's heading rating, a ranking would only say who beats EA's opinion, and EA's scouts partly rate heading by watching the same headers.</p>
   <h3>Tracking data</h3>
-  <p>In two Metrica games, 38 aerial duels had both players tracked for the full second before contact. Speed, top speed, distance covered and movement toward the ball did not pick the winner better than a coin flip (AUC 0.53, with a 95% range of 0.34 to 0.73). Two games are far too few to rule out a real effect.</p>
+  <p>In two Metrica games, 38 aerial duels had both players tracked for the full second before contact. Speed, top speed, distance covered and movement toward the ball did not pick the winner better than a coin flip (AUC 0.53, with a 95% range of 0.34 to 0.73).</p>
+  <p>A null result only means something if the test could have found an effect. With 38 duels, at the usual 5% level and 80% power, the smallest effects this test could reliably detect are the winner having the edge in at least 73% of duels, or a true AUC of about 0.76. So a large effect would probably have shown up, while a modest one could be missed. The observed shares narrow it further. The winner was faster at the jump in 14 of 38 duels, 37% with a 95% interval of 23% to 53%, so in these two games the data argues against the faster player winning even 60% of duels. For movement toward the ball the interval reaches 68%, and a modest advantage there cannot be ruled out. Two anonymous games are not a sample of the leagues in the main study either.</p>
 
   <h2>Limits</h2>
   <ul>
@@ -97,11 +145,12 @@
     <li>Only 47 players have 25 or more headed shots. That is why the reliability of headed finishing has such a wide interval, and why finishing skill can neither be confirmed nor ruled out.</li>
     <li>The player ranges treat the spread of skill between players as known, so they are slightly too narrow for players near the minimum sample.</li>
     <li>The duel model is useful but modest. Context it does not see, like a team's set piece routines, could still be hiding in player numbers.</li>
+    <li>About 18% of duels come from seasons that follow one team, mostly Barcelona. Rankings barely change without them, but players who appear mainly in those seasons cannot be ranked without them.</li>
     <li>Clearances have no end location in StatsBomb data, so where a clearance landed is approximated by the next event.</li>
   </ul>
 
   <h2>Run it yourself</h2>
-  <p>Everything on this site is produced by the code on <a href="https://github.com/lipealiseda/header-quality">GitHub</a>. A fresh copy of the repository was run from start to finish and gave identical results. The raw StatsBomb data is downloaded by a script rather than stored, as its licence requires.</p>
+  <p>Everything on this site is produced by the code on <a href="https://github.com/lipealiseda/header-quality">GitHub</a>, released under the MIT licence. One command, <code>python run_all.py</code>, runs every stage in order with pinned package versions, and a small test suite checks the parts most likely to go wrong silently, such as no match appearing in both training and test folds, no outcome columns among the model inputs, and no missing values reaching the models. A fresh copy of the repository was run from start to finish and gave identical results. The raw StatsBomb data is downloaded by a script rather than stored, as its licence requires.</p>
 </div>
 
 <nav class="pager" aria-label="Chapters"><a class="prev" href="rankings.html"><span class="dir">Previous</span><span class="t">Rankings</span></a></nav>

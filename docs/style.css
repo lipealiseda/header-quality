@@ -247,3 +247,24 @@ tr.hl td { background: var(--blue-wash); }
 
 td.num { white-space: nowrap; }
 #duels .of { color: var(--ink-3); font-size: 0.85em; }
+
+/* scout summary on the home page */
+.summary {
+  max-width: var(--wide); margin: 1.5rem auto 0.5rem; padding: 1.4rem 1.6rem 1.2rem;
+  border: 1.5px solid var(--ink); border-radius: 8px; background: #fff;
+}
+.summary h2 { margin: 0 0 0.8rem; font-size: 1.45rem; }
+.sum-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.4rem; counter-reset: s; }
+.sum-list li { margin: 0; padding-top: 0.8rem; border-top: 3px solid var(--blue); font-size: 1rem; line-height: 1.5; }
+.sum-list li:last-child { border-top-color: var(--orange); }
+.sum-list p { margin: 0 0 0.6rem; }
+.sum-head { font-family: var(--sans); font-stretch: 85%; font-weight: 700; font-size: 1.12rem; line-height: 1.25; color: var(--ink); }
+.sum-num { font-family: var(--sans); font-weight: 650; color: var(--blue-ink); font-size: 0.98rem; }
+.sum-list li:last-child .sum-num { color: var(--orange-ink); }
+.sum-num span { display: block; font-weight: 400; color: var(--ink-2); font-size: 0.88rem; }
+.sum-foot { margin: 0.6rem 0 0; font-family: var(--sans); font-size: 0.88rem; color: var(--ink-2); }
+@media (max-width: 760px) {
+  .sum-list { grid-template-columns: 1fr; gap: 1rem; }
+  .summary { padding: 1.1rem 1.1rem 1rem; }
+}
+code { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-size: 0.88em; background: var(--blue-wash); padding: 0.08em 0.35em; border-radius: 4px; }

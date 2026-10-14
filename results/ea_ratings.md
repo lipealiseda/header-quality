@@ -23,23 +23,23 @@ EA FC ratings (FIFA 15 to 22) are used as rough proxies for physical traits. The
 
 Players with 100+ aerial duels and an EA match (483 players). Their duels-above-expected number comes from a model that knows both players' heights but no EA ratings. Spearman correlation between that number and each EA rating.
 
-| EA rating | Correlation | p value | Players |
+| EA rating | Spearman correlation (95% interval) | p value | Players |
 |---|---|---|---|
-| Jumping | +0.28 | 0.000 | 483 |
-| Heading accuracy | +0.18 | 0.000 | 483 |
-| Strength | +0.12 | 0.008 | 483 |
-| Weight | +0.06 | 0.164 | 483 |
-| Sprint speed | +0.03 | 0.553 | 483 |
+| Jumping | +0.28 (+0.19 to +0.36) | 0.000 | 483 |
+| Heading accuracy | +0.18 (+0.09 to +0.26) | 0.000 | 483 |
+| Strength | +0.12 (+0.03 to +0.22) | 0.008 | 483 |
+| Weight | +0.06 (-0.03 to +0.15) | 0.164 | 483 |
+| Sprint speed | +0.03 (-0.06 to +0.11) | 0.553 | 483 |
 
-All five together (weighted regression, standardised ratings, 483 players) explain 12% of the spread in duels above expected. Change in duels won above expected per 100 for one standard deviation of each rating, holding the others fixed.
+All five together (weighted regression, standardised ratings, 483 players) explain 12% of the spread in duels above expected (95% interval 6% to 19%). Change in duels won above expected per 100 for one standard deviation of each rating, holding the others fixed. Intervals come from resampling the players 2,000 times.
 
-| EA rating | Per 1 SD |
+| EA rating | Per 1 SD (95% interval) |
 |---|---|
-| Jumping | +1.2 |
-| Weight | +0.6 |
-| Heading accuracy | +0.5 |
-| Sprint speed | +0.4 |
-| Strength | +0.1 |
+| Jumping | +1.2 (+0.6 to +1.8) |
+| Weight | +0.6 (-0.1 to +1.2) |
+| Heading accuracy | +0.5 (-0.2 to +1.1) |
+| Sprint speed | +0.4 (-0.1 to +1.0) |
+| Strength | +0.1 (-0.6 to +0.8) |
 
 ## The top five players in the air, with their EA ratings
 
