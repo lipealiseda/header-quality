@@ -275,3 +275,28 @@ code { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; 
 .lang-switch a { color: var(--ink-3); text-decoration: none; padding: 0.1rem 0.35rem; border-radius: 4px; }
 .lang-switch a:hover { color: var(--ink); background: var(--blue-wash); }
 .lang-switch a[aria-current] { color: var(--ink); background: var(--blue-wash); }
+
+/* home page hook: three numbers right under the title */
+.hook {
+  max-width: var(--wide); margin: 0.5rem auto 1.5rem; padding: 1.4rem 0 0;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2rem 2rem;
+  border-top: 1px solid var(--line);
+}
+.hook-item { font-size: 1rem; line-height: 1.5; color: var(--ink-2); }
+.hook-item p { margin: 0 0 0.5rem; }
+.hook-big {
+  font-family: var(--sans); font-stretch: 72%; font-weight: 750; font-size: clamp(2.4rem, 4.6vw, 3.3rem);
+  line-height: 1; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 0.6rem !important;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.hook-big.blue { color: var(--blue-ink); }
+.hook-big.orange { color: var(--orange-ink); }
+.hook-bars { display: block; width: 100%; max-width: 15rem; height: auto; margin: 0.1rem 0 0.15rem; }
+.hook-axis {
+  display: flex; justify-content: space-between; max-width: 15rem;
+  font-family: var(--sans); font-size: 0.78rem; color: var(--ink-3); margin-bottom: 0.6rem !important;
+}
+.hook-src { grid-column: 1 / -1; font-family: var(--sans); font-size: 0.82rem; color: var(--ink-3); margin: 0; }
+@media (max-width: 760px) {
+  .hook { grid-template-columns: 1fr; gap: 1.4rem; }
+}

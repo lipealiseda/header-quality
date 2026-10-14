@@ -43,7 +43,7 @@ STAGES = [
      [step("rankings.py"), step("stage4_report.py"), step("mixed_model.py"), step("sanity.py")]),
     ("ea", "EA FC ratings side test", [step("ea_ratings.py")]),
     ("tracking", "Speed before aerial duels from Metrica tracking data (Stage 5)", [step("stage5_tracking.py")]),
-    ("charts", "Charts (Stage 6)", [step("charts.py")]),
+    ("charts", "Charts (Stage 6) and the home page headline numbers", [step("charts.py"), step("headline_numbers.py")]),
     ("site", "Website in docs/", [step("build_site.py")]),
 ]
 
